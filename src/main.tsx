@@ -4,6 +4,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import ErrorPage from './pages/ErrorPage.tsx';
 import Dashboard from './pages/Dashboard.tsx';
 import App from './App.tsx';
+import WorkFlow from './pages/WorkFlow.tsx';
 
 const router = createBrowserRouter([
   {
@@ -12,9 +13,13 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
   },
   {
-    path: '/dashboard',
+    path: 'dashboard',
     element: <Dashboard />,
     errorElement: <ErrorPage />,
+  },
+  {
+    path: 'workflow/:workflowId',
+    element: <WorkFlow />,
   },
 ]);
 
