@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -6,40 +6,55 @@ import ReactFlow, {
   Controls,
   MiniMap,
   ReactFlowInstance,
-  addEdge,
   useEdgesState,
   useNodesState,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { v4 as uuid } from 'uuid';
 import InputNode from './Nodes/InputNode';
-import { DragEventTypes } from '@/types/Builder';
+import { workflowNodeTypes } from '@/types/Builder';
 import SortNode from './Nodes/SortNode';
+import {
+  WorkFlowDto,
+  addWorkFlowEdge,
+  addWorkFlowNode,
+} from '@/store/workflow';
+import { useDispatch } from 'react-redux';
 
 const nodeTypes = {
   selectorNode: InputNode,
   sortNode: SortNode,
 };
 
-interface NodeData {
-  label: string;
-  color: string;
-}
+declare type Props = {
+  workflow: WorkFlowDto;
+};
 
-interface EdgeData {
-  weight: number;
-}
-
-const Builder = () => {
+const Builder = ({ workflow }: Props) => {
+  const dispatch = useDispatch();
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<
-    ReactFlowInstance<NodeData, EdgeData> | undefined
+    ReactFlowInstance<any, any> | undefined
   >(undefined);
 
   const onConnect = useCallback(
-    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges],
+    (params: Connection) => {
+      if (params.source && params.target && params.sourceHandle)
+        dispatch(
+          addWorkFlowEdge({
+            workflowId: workflow.id,
+            edge: {
+              id: `reactflow__edge-${params.source}-${params.target}`,
+              source: params.source,
+              sourceHandle: params.sourceHandle,
+              target: params.target,
+              targetHandle: params.targetHandle,
+            },
+          }),
+        );
+    },
+    [dispatch, workflow.id],
   );
 
   const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
@@ -53,7 +68,7 @@ const Builder = () => {
 
       const type = event.dataTransfer.getData(
         'application/reactflow',
-      ) as DragEventTypes;
+      ) as workflowNodeTypes;
 
       // check if the dropped element is valid
       if (typeof type === 'undefined' || !type) {
@@ -70,29 +85,47 @@ const Builder = () => {
 
       switch (type) {
         case 'selectorNode':
-          setNodes((nds) =>
-            nds.concat({
-              id: uuid(),
-              type,
-              position,
-              data: { label: `${type} node` },
+          dispatch(
+            addWorkFlowNode({
+              workflowId: workflow.id,
+              node: {
+                id: uuid(),
+                type,
+                position,
+                data: {
+                  workflowId: workflow.id,
+                },
+              },
             }),
           );
           break;
         case 'sortNode':
-          setNodes((nds) =>
-            nds.concat({
-              id: uuid(),
-              type,
-              position,
-              data: { label: `${type} node` },
+          dispatch(
+            addWorkFlowNode({
+              workflowId: workflow.id,
+              node: {
+                id: uuid(),
+                type,
+                position,
+                data: {
+                  workflowId: workflow.id,
+                },
+              },
             }),
           );
           break;
       }
     },
-    [reactFlowInstance, setNodes],
+    [reactFlowInstance, workflow.id, dispatch],
   );
+
+  useEffect(() => {
+    setNodes(workflow.workFlowNodes);
+  }, [workflow.workFlowNodes, setNodes]);
+
+  useEffect(() => {
+    setEdges(workflow.workFlowEdges);
+  }, [workflow.workFlowEdges, setEdges]);
 
   return (
     <div className="h-full w-full">

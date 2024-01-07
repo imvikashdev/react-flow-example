@@ -1,12 +1,35 @@
-import { memo } from 'react';
+import { removeCSVDataByNodeId, removeWorkFlowNode } from '@/store/workflow';
+import { memo, useCallback } from 'react';
 import { FaGripVertical } from 'react-icons/fa';
-import { Handle, Position } from 'reactflow';
+import { FaXmark } from 'react-icons/fa6';
+import { useDispatch } from 'react-redux';
+import { Handle, NodeProps, Position, XYPosition } from 'reactflow';
 
-type Props = {
-  isConnectable?: boolean;
+declare type Props = NodeProps & {
+  isConnectable: boolean;
+  position?: XYPosition;
+  data: {
+    workflowId: string;
+  };
 };
+const SortNode = memo((props: Props) => {
+  const dispatch = useDispatch();
+  console.log(props.isConnectable);
+  const removeNode = useCallback(
+    (nodeId: string) => {
+      dispatch(
+        removeWorkFlowNode({
+          workflowId: props.data.workflowId,
+          nodeId: nodeId,
+        }),
+      );
+      dispatch(
+        removeCSVDataByNodeId({ nodeId, workflowId: props.data.workflowId }),
+      );
+    },
+    [dispatch, props.data.workflowId],
+  );
 
-const SortNode = memo(({ isConnectable }: Props) => {
   return (
     <div className="rounded-lg flex  shadow-md bg-slate-800">
       <Handle
@@ -20,13 +43,22 @@ const SortNode = memo(({ isConnectable }: Props) => {
           left: '-15px',
           top: '20%',
         }}
+        isValidConnection={(connection) => {
+          console.log(connection);
+          return true;
+        }}
         onConnect={(params) => console.log('handle onConnect', params)}
-        isConnectable={isConnectable}
+        isConnectable={props.isConnectable}
       />
       <div className="shadow-md bg-slate-800 w-full max-w-sm">
-        <div className="text-slate-300 flex gap-2 items-center px-2 py-1 bg-slate-600">
-          <FaGripVertical className="inline" />
-          <span className="text-sm">Sort Data</span>
+        <div className="text-slate-300 flex items-center justify-between px-2 py-1 bg-slate-600">
+          <div className="flex gap-2 items-center">
+            <FaGripVertical className="inline" />
+            <span className="text-sm">File</span>
+          </div>
+          <button onClick={() => removeNode(props.id)}>
+            <FaXmark />
+          </button>
         </div>
         <div className="dark:bg-slate-400 me-2 px-3 py-2 dark:text-white rounded-md">
           Sort Data

@@ -1,4 +1,4 @@
-export const DragEventOptions = [
+export const workflowNodeOptions = [
   'input',
   'selectorNode',
   'sortNode',
@@ -7,4 +7,4 @@ export const DragEventOptions = [
   'none',
 ] as const;
 
-export declare type DragEventTypes = (typeof DragEventOptions)[number];
+export declare type workflowNodeTypes = (typeof DragEventOptions)[number];

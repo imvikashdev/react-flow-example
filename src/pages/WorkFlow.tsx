@@ -41,7 +41,7 @@ const WorkFlow = () => {
         </aside>
         <section className="flex-grow p-2">
           <div className="h-full w-full rounded-md shadow overflow-hidden">
-            <Builder />
+            {currentWorkflow && <Builder workflow={currentWorkflow} />}
           </div>
         </section>
       </main>
