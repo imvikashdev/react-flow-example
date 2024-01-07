@@ -1,40 +1,106 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import ReactFlow, {
   Background,
   BackgroundVariant,
   Connection,
   Controls,
   MiniMap,
+  ReactFlowInstance,
   addEdge,
   useEdgesState,
   useNodesState,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+import { v4 as uuid } from 'uuid';
+import InputNode from './Nodes/InputNode';
+import { DragEventTypes } from '@/types/Builder';
+import SortNode from './Nodes/SortNode';
 
-const initialNodes = [
-  { id: '1', position: { x: 0, y: 0 }, data: { label: '1' } },
-  { id: '2', position: { x: 0, y: 100 }, data: { label: '2' } },
-];
-const initialEdges = [{ id: 'e1-2', source: '1', target: '2' }];
+const nodeTypes = {
+  selectorNode: InputNode,
+  sortNode: SortNode,
+};
 
-type Props = {};
-
-const Builder = (props: Props) => {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+const Builder = () => {
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [reactFlowInstance, setReactFlowInstance] = useState<
+    ReactFlowInstance<any, any> | undefined
+  >(undefined);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
     [setEdges],
   );
+
+  const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
+
+  const onFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e.target.files);
+  };
+
+  const onDrop = useCallback(
+    (event: React.DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
+
+      const type = event.dataTransfer.getData(
+        'application/reactflow',
+      ) as DragEventTypes;
+
+      // check if the dropped element is valid
+      if (typeof type === 'undefined' || !type) {
+        return;
+      }
+
+      if (!reactFlowInstance) {
+        return;
+      }
+      const position = reactFlowInstance.screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+
+      switch (type) {
+        case 'selectorNode':
+          setNodes((nds) =>
+            nds.concat({
+              id: uuid(),
+              type,
+              position,
+              data: { label: `${type} node` },
+            }),
+          );
+          break;
+        case 'sortNode':
+          setNodes((nds) =>
+            nds.concat({
+              id: uuid(),
+              type,
+              position,
+              data: { label: `${type} node` },
+            }),
+          );
+          break;
+      }
+    },
+    [reactFlowInstance, setNodes],
+  );
+
   return (
     <div className="h-full w-full">
       <ReactFlow
         nodes={nodes}
         edges={edges}
+        nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={(e) => onConnect(e)}
+        onInit={(e) => setReactFlowInstance(e)}
+        onDrop={(e) => onDrop(e)}
+        onDragOver={(e) => onDragOver(e)}
         className=" bg-indigo-950"
       >
         <Controls />

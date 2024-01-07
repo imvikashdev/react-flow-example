@@ -4,10 +4,13 @@ import { Input } from '@/components/ui/input';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import NewWorkFlow from '@/components/core/Dialog/NewWorkFlow';
+import { useSelector } from 'react-redux';
+import { getWorkFlowList } from '@/store/workflow';
 
-type Props = {};
+const Dashboard = () => {
+  const workFLowList = useSelector(getWorkFlowList);
 
-const Dashboard = (props: Props) => {
   return (
     <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
       <div className="hidden border-r bg-gray-100/40 lg:block dark:bg-gray-800/40">
@@ -61,44 +64,31 @@ const Dashboard = (props: Props) => {
           <div className="flex items-center">
             <h1 className="font-semibold text-lg md:text-2xl">Workflows</h1>
           </div>
-          <div className="border shadow-sm rounded-lg">
-            <div className="grid gap-4 md:gap-8 lg:grid-cols-3">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Workflow 1</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full" size="sm">
-                    Edit
-                  </Button>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Workflow 2</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full" size="sm">
-                    Edit
-                  </Button>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Workflow 3</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full" size="sm">
-                    Edit
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+
+          <div className="flex flex-wrap gap-4 md:gap-8 lg:grid-cols-3">
+            {workFLowList.length > 0 ? (
+              workFLowList.map((workflow) => (
+                <Card className="shadow-md">
+                  <CardHeader>
+                    <CardTitle>{workflow.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Link
+                      className="bg-indigo-950 hover:bg-indigo-900 text-white px-4 py-2 rounded-md"
+                      to={`/workflow/${workflow.id}`}
+                    >
+                      Edit Workflow
+                    </Link>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <h4></h4>
+            )}
           </div>
+
           <div className="mt-auto p-4">
-            <Button className="w-full" size="lg">
-              Create New Workflow
-            </Button>
+            <NewWorkFlow />
           </div>
         </main>
       </div>

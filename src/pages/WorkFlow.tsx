@@ -1,17 +1,27 @@
 import Builder from '@/components/core/Builder';
-import { useParams } from 'react-router-dom';
+import SideBar from '@/components/core/SideBar';
+import { ReduxStore } from '@/store';
+import { getWorkFlowById } from '@/store/workflow';
+import { useSelector } from 'react-redux';
+import { Navigate, useParams } from 'react-router-dom';
 
-type Props = {};
-
-const WorkFlow = (props: Props) => {
+const WorkFlow = () => {
   const { workflowId } = useParams<{ workflowId: string }>();
+  const currentWorkflow = useSelector((state: ReduxStore) =>
+    getWorkFlowById(state, workflowId || ''),
+  );
 
-  console.log(workflowId);
+  if (currentWorkflow === undefined) {
+    return <Navigate to={'/dashboard'} replace />;
+  }
+
   return (
     <div className="flex flex-col bg-slate-900 h-screen">
       <main className="flex flex-row h-100 h-screen">
         <aside className="w-0 md:w-60 p-0 md:p-2 !pr-0">
-          <div className="h-full bg-slate-700 rounded-md shadow" />
+          <div className="h-full bg-slate-700 rounded-md shadow">
+            <SideBar />
+          </div>
         </aside>
         <section className="flex-grow p-2">
           <div className="h-full w-full rounded-md shadow overflow-hidden">
