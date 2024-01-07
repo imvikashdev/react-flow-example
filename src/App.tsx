@@ -30,7 +30,7 @@ function App() {
 
   const saveWorkflowsToRedux = useCallback(async () => {
     try {
-      const workflows: Array<WorkFlowDto> = await getWorkflows();
+      const workflows: Array<WorkFlowDto> = (await getWorkflows()) || [];
       dispatch(setWorkFlowFromDb(workflows));
     } catch (e) {
       console.log(e);
