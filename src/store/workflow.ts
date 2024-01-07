@@ -1,10 +1,21 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { ReduxStore } from '.';
-import { workflowNodeTypes } from '@/types/Builder';
+
+import { generateWorkFlowOperation } from '@/utils/generateWorkFlowOperation';
+import {
+  NodeOperationTypes,
+  filterNodeType,
+  groupNodeType,
+  sliceNodeType,
+  sortNodeType,
+  workflowNodeEnum,
+  workflowNodeTypes,
+} from '@/types/Builder.dto';
 
 export interface WorkFlowCSVData {
   nodeId: string;
   fileName: string;
+  columns: Array<string>;
   csvData: Array<{
     [key: string]: string | number | boolean;
   }>;
@@ -34,6 +45,10 @@ export interface WorkFlowDto {
   id: string;
   name: string;
   data?: Array<WorkFlowCSVData>;
+  currentData?: Array<{
+    [key: string]: string | number | boolean;
+  }>;
+  nodeOperation: NodeOperationTypes;
   workFlowNodes: Array<WorkFlowNode>;
   workFlowEdges: Array<WorkFlowEdge>;
 }
@@ -56,6 +71,23 @@ const WorkFlowSlice = createSlice({
       state.workflows = [...state.workflows, action.payload];
     },
 
+    setCurrentData: (
+      state,
+      action: PayloadAction<{
+        workflowId: string;
+        data: Array<{
+          [key: string]: string | number | boolean;
+        }>;
+      }>,
+    ) => {
+      const workflow = state.workflows.find(
+        (flow) => flow.id === action.payload.workflowId,
+      );
+      if (workflow) {
+        workflow.currentData = action.payload.data;
+      }
+    },
+
     addWorkFlowData: (
       state,
       action: PayloadAction<{ data: WorkFlowCSVData; workflowId: string }>,
@@ -64,6 +96,17 @@ const WorkFlowSlice = createSlice({
       const workflow = state.workflows.find((flow) => flow.id === workflowId);
       if (workflow) {
         workflow.data = [...(workflow?.data || []), data];
+        workflow.nodeOperation = [
+          ...workflow.nodeOperation,
+          {
+            nodeId: data.nodeId,
+            type: workflowNodeEnum.selectorNode,
+            operationParams: null,
+            output: data.csvData,
+            columns: data.columns,
+            input: null,
+          },
+        ];
       }
     },
 
@@ -80,7 +123,10 @@ const WorkFlowSlice = createSlice({
 
     addWorkFlowNode: (
       state,
-      action: PayloadAction<{ workflowId: string; node: WorkFlowNode }>,
+      action: PayloadAction<{
+        workflowId: string;
+        node: WorkFlowNode;
+      }>,
     ) => {
       const workflow = state.workflows.find(
         (flow) => flow.id === action.payload.workflowId,
@@ -90,6 +136,41 @@ const WorkFlowSlice = createSlice({
           ...workflow.workFlowNodes,
           action.payload.node,
         ];
+        const nodeOperationData = generateWorkFlowOperation(
+          action.payload.node.type,
+          action.payload.node,
+        );
+        if (nodeOperationData) {
+          workflow.nodeOperation = [
+            ...workflow.nodeOperation,
+            nodeOperationData,
+          ];
+        }
+      }
+    },
+
+    updateNodeOperation: (
+      state,
+      action: PayloadAction<{
+        workflowId: string;
+        nodeId: string;
+        nodeOperation:
+          | sortNodeType
+          | filterNodeType
+          | groupNodeType
+          | sliceNodeType;
+      }>,
+    ) => {
+      const workflow = state.workflows.find(
+        (flow) => flow.id === action.payload.workflowId,
+      );
+      if (workflow) {
+        workflow.nodeOperation = workflow.nodeOperation.map((operation) => {
+          if (operation.nodeId === action.payload.nodeId) {
+            return action.payload.nodeOperation;
+          }
+          return operation;
+        });
       }
     },
 
@@ -123,6 +204,10 @@ const WorkFlowSlice = createSlice({
           action.payload.edge,
         ];
       }
+    },
+
+    onNodeConnect: (state, action) => {
+      console.log(action.payload);
     },
 
     setWorkFlowFromDb: (state, action: PayloadAction<WorkFlowDto[]>) => {
@@ -172,6 +257,27 @@ export const getNodeData = (
   }
 };
 
+export const getNodeOperationData = (
+  state: ReduxStore,
+  { workflowId }: { workflowId: string },
+) => {
+  const workflow = state.workflow.workflows.find(
+    (flow) => flow.id === workflowId,
+  );
+  if (workflow) {
+    return workflow.nodeOperation;
+  }
+};
+
+export const getCurrentData = (state: ReduxStore, workflowId: string) => {
+  const workflow = state.workflow.workflows.find(
+    (flow) => flow.id === workflowId,
+  );
+  if (workflow) {
+    return workflow.currentData;
+  }
+};
+
 export const {
   setWorkflow,
   setWorkFlowFromDb,
@@ -181,6 +287,9 @@ export const {
   addWorkFlowData,
   updateLoadingState,
   removeCSVDataByNodeId,
+  updateNodeOperation,
+  setCurrentData,
+  onNodeConnect,
   deleteWorkFlow,
 } = WorkFlowSlice.actions;
 

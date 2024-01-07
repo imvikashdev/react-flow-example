@@ -26,7 +26,7 @@ const WorkFlow = () => {
   return (
     <div className="flex flex-col bg-slate-900 h-screen">
       <main className="flex flex-row h-100 h-screen">
-        <aside className="w-14 hover:w-60 md:w-60 flex flex-col gap-2 p-2 !pr-0 ">
+        <aside className="w-14 hover:w-52 md:w-52 flex flex-col gap-2 p-2 !pr-0 ">
           <div className="flex-grow bg-slate-700 rounded-md shadow">
             <SideBar />
           </div>
@@ -50,7 +50,13 @@ const WorkFlow = () => {
           expandFooter ? 'h-40 md:h-60 p-2' : 'h-0'
         } transition-[height]  pt-0 overflow-auto`}
       >
-        <div className="h-full bg-slate-700 rounded-md shadow p-4" />
+        <div className="h-full bg-slate-700 rounded-md shadow p-4">
+          {currentWorkflow?.currentData && (
+            <pre className="h-full overflow-y-scroll">
+              {JSON.stringify(currentWorkflow?.currentData, null, 2)}
+            </pre>
+          )}
+        </div>
       </footer>
     </div>
   );

@@ -27,6 +27,7 @@ const NewWorkFlow = () => {
       name: workflowName,
       workFlowEdges: [],
       workFlowNodes: [],
+      nodeOperation: [],
       id: uuid(),
     };
 

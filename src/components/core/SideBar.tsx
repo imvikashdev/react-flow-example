@@ -1,4 +1,4 @@
-import { workflowNodeTypes } from '@/types/Builder';
+import { workflowNodeTypes } from '@/types/Builder.dto';
 import React from 'react';
 
 const SideBar = () => {
@@ -18,14 +18,35 @@ const SideBar = () => {
           onDragStart={(event) => onDragStart(event, 'selectorNode')}
           draggable
         >
-          Input Node
+          Input File
         </div>
         <div
           className="cursor-move border border-solid bg-indigo-950 border-gray-300 rounded-md px-4 text-white font-mono shadow-md py-2"
           onDragStart={(event) => onDragStart(event, 'sortNode')}
           draggable
         >
-          Sort Node
+          Sort Data
+        </div>
+        <div
+          className="cursor-move border border-solid bg-indigo-950 border-gray-300 rounded-md px-4 text-white font-mono shadow-md py-2"
+          onDragStart={(event) => onDragStart(event, 'filterNode')}
+          draggable
+        >
+          Filter Data
+        </div>
+        <div
+          className="cursor-move border border-solid bg-indigo-950 border-gray-300 rounded-md px-4 text-white font-mono shadow-md py-2"
+          onDragStart={(event) => onDragStart(event, 'sliceNode')}
+          draggable
+        >
+          Slice Data
+        </div>
+        <div
+          className="cursor-move border border-solid bg-indigo-950 border-gray-300 rounded-md px-4 text-white font-mono shadow-md py-2"
+          onDragStart={(event) => onDragStart(event, 'groupNode')}
+          draggable
+        >
+          Group Data
         </div>
       </div>
     </div>

@@ -9,21 +9,28 @@ import ReactFlow, {
   useEdgesState,
   useNodesState,
 } from 'reactflow';
-import 'reactflow/dist/style.css';
 import { v4 as uuid } from 'uuid';
-import InputNode from './Nodes/InputNode';
-import { workflowNodeTypes } from '@/types/Builder';
-import SortNode from './Nodes/SortNode';
+import { workflowNodeTypes } from '@/types/Builder.dto';
 import {
   WorkFlowDto,
   addWorkFlowEdge,
   addWorkFlowNode,
 } from '@/store/workflow';
+import 'reactflow/dist/style.css';
+
 import { useDispatch } from 'react-redux';
+import InputNode from './Nodes/InputNode';
+import SortNode from './Nodes/SortNode';
+import FilterNode from './Nodes/FilterNode';
+import SliceNode from './Nodes/SliceNode';
+import GroupNode from './Nodes/GroupNode';
 
 const nodeTypes = {
   selectorNode: InputNode,
   sortNode: SortNode,
+  filterNode: FilterNode,
+  sliceNode: SliceNode,
+  groupNode: GroupNode,
 };
 
 declare type Props = {
@@ -114,6 +121,20 @@ const Builder = ({ workflow }: Props) => {
             }),
           );
           break;
+        default:
+          dispatch(
+            addWorkFlowNode({
+              workflowId: workflow.id,
+              node: {
+                id: uuid(),
+                type,
+                position,
+                data: {
+                  workflowId: workflow.id,
+                },
+              },
+            }),
+          );
       }
     },
     [reactFlowInstance, workflow.id, dispatch],

@@ -1,5 +1,5 @@
 import { memo, useCallback } from 'react';
-import { Handle, NodeProps, Position, XYPosition } from 'reactflow';
+import { Connection, Handle, NodeProps, Position } from 'reactflow';
 import { FaGripVertical, FaFile } from 'react-icons/fa';
 import { FaXmark } from 'react-icons/fa6';
 import Papa from 'papaparse';
@@ -7,14 +7,16 @@ import {
   WorkFlowCSVData,
   addWorkFlowData,
   getNodeData,
+  getNodeOperationData,
   removeCSVDataByNodeId,
   removeWorkFlowNode,
+  updateNodeOperation,
 } from '@/store/workflow';
 import { useDispatch, useSelector } from 'react-redux';
 import { ReduxStore } from '@/store';
+import { workflowNodeEnum } from '@/types/Builder.dto';
 
 declare type Props = NodeProps & {
-  position?: XYPosition;
   data: {
     workflowId: string;
   };
@@ -22,6 +24,11 @@ declare type Props = NodeProps & {
 
 const InputNode = memo((props: Props) => {
   const dispatch = useDispatch();
+
+  const nodeOperations = useSelector((state: ReduxStore) =>
+    getNodeOperationData(state, { workflowId: props.data.workflowId }),
+  );
+
   const file = useSelector((state: ReduxStore) =>
     getNodeData(state, { workflowId: props.data.workflowId, nodeId: props.id }),
   );
@@ -55,6 +62,7 @@ const InputNode = memo((props: Props) => {
         const dataPayload: WorkFlowCSVData = {
           nodeId: props.id,
           csvData: csvData,
+          columns: results.meta.fields || [],
           fileName: csvFile.name,
         };
 
@@ -67,6 +75,38 @@ const InputNode = memo((props: Props) => {
       },
     });
   };
+
+  const updateTargetNodeOperation = useCallback(
+    (params: Connection) => {
+      const targetedNodeOperationData = nodeOperations?.find(
+        (e) => e.nodeId === params.target,
+      );
+      const sourceNodeOperationData = nodeOperations?.find(
+        (e) => e.nodeId === params.source,
+      );
+      if (
+        sourceNodeOperationData &&
+        params.source &&
+        targetedNodeOperationData &&
+        params.target &&
+        targetedNodeOperationData.type !== workflowNodeEnum.selectorNode &&
+        sourceNodeOperationData.type !== workflowNodeEnum.groupNode
+      ) {
+        dispatch(
+          updateNodeOperation({
+            workflowId: props.data.workflowId,
+            nodeId: params.target,
+            nodeOperation: {
+              ...targetedNodeOperationData,
+              input: sourceNodeOperationData.output,
+              columns: sourceNodeOperationData.columns,
+            },
+          }),
+        );
+      }
+    },
+    [nodeOperations, dispatch, props.data.workflowId],
+  );
 
   return (
     <div className="rounded-lg flex  shadow-md bg-slate-800">
@@ -109,6 +149,7 @@ const InputNode = memo((props: Props) => {
           height: 'initial',
         }}
         type="source"
+        onConnect={(params) => updateTargetNodeOperation(params)}
         position={Position.Right}
         id="a"
       />
