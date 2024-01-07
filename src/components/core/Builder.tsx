@@ -21,11 +21,20 @@ const nodeTypes = {
   sortNode: SortNode,
 };
 
+interface NodeData {
+  label: string;
+  color: string;
+}
+
+interface EdgeData {
+  weight: number;
+}
+
 const Builder = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<
-    ReactFlowInstance<any, any> | undefined
+    ReactFlowInstance<NodeData, EdgeData> | undefined
   >(undefined);
 
   const onConnect = useCallback(
@@ -37,10 +46,6 @@ const Builder = () => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
   }, []);
-
-  const onFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.files);
-  };
 
   const onDrop = useCallback(
     (event: React.DragEvent<HTMLDivElement>) => {

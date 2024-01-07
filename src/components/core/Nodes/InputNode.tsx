@@ -1,12 +1,8 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { Handle, Position } from 'reactflow';
 import { FaGripVertical, FaFile } from 'react-icons/fa';
 
-type Props = {
-  data: { onFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void };
-};
-
-const InputNode = memo(({ data }: Props) => {
+const InputNode = memo(() => {
   return (
     <div className="rounded-lg flex  shadow-md bg-slate-800">
       <div className="shadow-md bg-slate-800 w-full max-w-sm">

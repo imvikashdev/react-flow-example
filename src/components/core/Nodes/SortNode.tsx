@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { FaGripVertical } from 'react-icons/fa';
 import { Handle, Position } from 'reactflow';
 

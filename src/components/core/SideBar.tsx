@@ -1,9 +1,7 @@
 import { DragEventTypes } from '@/types/Builder';
 import React from 'react';
 
-type Props = {};
-
-const SideBar = (props: Props) => {
+const SideBar = () => {
   const onDragStart = (
     event: React.DragEvent<HTMLDivElement>,
     nodeType: DragEventTypes,
