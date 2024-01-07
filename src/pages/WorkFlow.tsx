@@ -1,7 +1,8 @@
 import Builder from '@/components/core/Builder';
+import Loader from '@/components/core/Loader';
 import SideBar from '@/components/core/SideBar';
 import { ReduxStore } from '@/store';
-import { getWorkFlowById } from '@/store/workflow';
+import { dataFetched, getWorkFlowById } from '@/store/workflow';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Navigate, useParams } from 'react-router-dom';
@@ -12,8 +13,13 @@ const WorkFlow = () => {
   const currentWorkflow = useSelector((state: ReduxStore) =>
     getWorkFlowById(state, workflowId || ''),
   );
+  const isLoading = useSelector(dataFetched);
 
-  if (currentWorkflow === undefined) {
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  if (currentWorkflow === undefined && !isLoading) {
     return <Navigate to={'/dashboard'} replace />;
   }
 

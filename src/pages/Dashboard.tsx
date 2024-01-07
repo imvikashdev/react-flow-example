@@ -4,11 +4,19 @@ import { Input } from '@/components/ui/input';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import NewWorkFlow from '@/components/core/Dialog/NewWorkFlow';
-import { useSelector } from 'react-redux';
-import { getWorkFlowList } from '@/store/workflow';
+import { useDispatch, useSelector } from 'react-redux';
+import { dataFetched, deleteWorkFlow, getWorkFlowList } from '@/store/workflow';
+import { FaPen, FaTrash } from 'react-icons/fa';
+import Loader from '@/components/core/Loader';
 
 const Dashboard = () => {
+  const dispatch = useDispatch();
   const workFLowList = useSelector(getWorkFlowList);
+  const isLoading = useSelector(dataFetched);
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
     <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
@@ -67,22 +75,38 @@ const Dashboard = () => {
           <div className="flex flex-wrap gap-4 md:gap-8 lg:grid-cols-3">
             {workFLowList.length > 0 ? (
               workFLowList.map((workflow) => (
-                <Card key={workflow.id} className="shadow-md">
+                <Card
+                  key={workflow.id}
+                  className="shadow-md border border-solid border-gray-500"
+                >
                   <CardHeader>
                     <CardTitle>{workflow.name}</CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="flex gap-3 justify-between">
                     <Link
-                      className="bg-indigo-950 hover:bg-indigo-900 text-white px-4 py-2 rounded-md"
+                      title="edit workflow"
+                      className="bg-indigo-950  hover:bg-indigo-900 text-white px-4 py-2 rounded-md"
                       to={`/workflow/${workflow.id}`}
                     >
-                      Edit Workflow
+                      <FaPen className="text-white" />
                     </Link>
+                    <button
+                      title="delete workflow"
+                      className="bg-red-600  hover:bg-red-500 text-white px-4 py-2 rounded-md"
+                      onClick={() => {
+                        dispatch(deleteWorkFlow(workflow.id));
+                      }}
+                    >
+                      <FaTrash className="text-white" />
+                    </button>
                   </CardContent>
                 </Card>
               ))
             ) : (
-              <h4></h4>
+              <div className="flex flex-col items-center justify-center w-full h-full">
+                <h1 className="text-2xl font-semibold">No Workflows Found</h1>
+                <p className="text-gray-500">Create a new workflow</p>
+              </div>
             )}
           </div>
 

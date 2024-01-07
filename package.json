@@ -24,6 +24,7 @@
     "react-redux": "^9.0.4",
     "react-router-dom": "^6.21.1",
     "reactflow": "^11.10.1",
+    "sass": "^1.69.7",
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^9.0.1"
