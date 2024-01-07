@@ -23,6 +23,9 @@ const WorkFlowSlice = createSlice({
     setWorkflow: (state, action: PayloadAction<WorkFlowDto>) => {
       state.workflows = [...state.workflows, action.payload];
     },
+    setWorkFlowFromDb: (state, action: PayloadAction<WorkFlowDto[]>) => {
+      state.workflows = action.payload;
+    },
   },
 });
 
@@ -34,6 +37,6 @@ export const getWorkFlowList = (state: ReduxStore) => {
   return state.workflow.workflows;
 };
 
-export const { setWorkflow } = WorkFlowSlice.actions;
+export const { setWorkflow, setWorkFlowFromDb } = WorkFlowSlice.actions;
 
 export default WorkFlowSlice.reducer;

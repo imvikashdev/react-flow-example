@@ -2,7 +2,6 @@ import React from 'react';
 import { Input } from '@/components/ui/input';
 
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import NewWorkFlow from '@/components/core/Dialog/NewWorkFlow';
 import { useSelector } from 'react-redux';
@@ -68,7 +67,7 @@ const Dashboard = () => {
           <div className="flex flex-wrap gap-4 md:gap-8 lg:grid-cols-3">
             {workFLowList.length > 0 ? (
               workFLowList.map((workflow) => (
-                <Card className="shadow-md">
+                <Card key={workflow.id} className="shadow-md">
                   <CardHeader>
                     <CardTitle>{workflow.name}</CardTitle>
                   </CardHeader>
