@@ -113,8 +113,6 @@ const WorkFlowSlice = createSlice({
           .filter((edge) => edge.source === data.nodeId)
           .map((edge) => edge.target);
 
-        console.log(nodesOperationToBeUpdates);
-
         const updatedOperationNodes: NodeOperationTypes =
           workflow.nodeOperation.map((operation) => {
             if (
@@ -181,6 +179,33 @@ const WorkFlowSlice = createSlice({
             nodeOperationData,
           ];
         }
+      }
+    },
+
+    updateWorkFlowNodePosition: (
+      state,
+      action: PayloadAction<{
+        workflowId: string;
+        nodeId: string;
+        position: {
+          x: number;
+          y: number;
+        };
+      }>,
+    ) => {
+      const workflow = state.workflows.find(
+        (flow) => flow.id === action.payload.workflowId,
+      );
+      if (workflow) {
+        workflow.workFlowNodes = workflow.workFlowNodes.map((node) => {
+          if (node.id === action.payload.nodeId) {
+            return {
+              ...node,
+              position: action.payload.position,
+            };
+          }
+          return node;
+        });
       }
     },
 
@@ -326,6 +351,7 @@ export const {
   updateLoadingState,
   removeCSVDataByNodeId,
   updateNodeOperation,
+  updateWorkFlowNodePosition,
   setCurrentData,
   deleteWorkFlow,
 } = WorkFlowSlice.actions;

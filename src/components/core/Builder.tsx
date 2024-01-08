@@ -15,6 +15,7 @@ import {
   WorkFlowDto,
   addWorkFlowEdge,
   addWorkFlowNode,
+  updateWorkFlowNodePosition,
 } from '@/store/workflow';
 import 'reactflow/dist/style.css';
 
@@ -126,6 +127,15 @@ const Builder = ({ workflow }: Props) => {
         edges={edges}
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
+        onNodeDragStop={(_, node) => {
+          dispatch(
+            updateWorkFlowNodePosition({
+              workflowId: workflow.id,
+              nodeId: node.id,
+              position: node.position,
+            }),
+          );
+        }}
         onEdgesChange={onEdgesChange}
         onConnect={(e) => onConnect(e)}
         onInit={(e) => setReactFlowInstance(e)}

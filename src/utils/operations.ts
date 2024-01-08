@@ -57,7 +57,6 @@ export const filterData = (
       case filterTypesEnum['less-than']:
         return Number(row[columnKey]) < Number(value);
       case filterTypesEnum.regex: {
-        console.log(row[columnKey]);
         const sanitizedRegexString = value.slice(1, -1).replace(/\\\\/g, '\\');
         const regex = new RegExp(sanitizedRegexString);
         return regex.test(row[columnKey].toString());
@@ -81,7 +80,6 @@ export const groupData = (
       },
       row,
     ) => {
-      console.log(row[columnKey]);
       if (!row[columnKey]) return acc;
       const key = row[columnKey].toString();
       if (!acc[key]) {

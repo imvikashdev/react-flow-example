@@ -144,7 +144,7 @@ const SortNode = memo((props: Props) => {
             </button>
             <button
               disabled={!currentNodeOperation?.input?.length}
-              className="disabled:opacity-50 cursor-not-allowed"
+              className="disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={() => runOperation()}
             >
               <FaPlay />

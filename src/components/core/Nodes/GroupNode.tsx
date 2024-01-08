@@ -60,7 +60,6 @@ const GroupNode = memo((props: Props) => {
       currentNodeOperation &&
       currentNodeOperation.type === workflowNodeEnum.groupNode
     ) {
-      console.log(currentNodeOperation.input, selectedKey);
       const groupedData = groupData(currentNodeOperation.input, selectedKey);
       dispatch(
         updateNodeOperation({
@@ -94,13 +93,8 @@ const GroupNode = memo((props: Props) => {
           left: '-15px',
           top: '20%',
         }}
-        isValidConnection={(connection) => {
-          console.log(connection);
-          return true;
-        }}
         isConnectableStart={false}
         isConnectableEnd={true}
-        onConnect={(params) => console.log('handle onConnect', params)}
         isConnectable={props.isConnectable}
       />
       <div className="shadow-md bg-slate-800 w-full max-w-sm">
@@ -115,7 +109,7 @@ const GroupNode = memo((props: Props) => {
             </button>
             <button
               disabled={!currentNodeOperation?.input?.length}
-              className="disabled:opacity-50 cursor-not-allowed"
+              className="disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={() => runOperation()}
             >
               <FaPlay />

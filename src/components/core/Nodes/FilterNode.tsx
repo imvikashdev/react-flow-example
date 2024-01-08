@@ -110,10 +110,6 @@ const FilterNode = memo((props: Props) => {
         targetedNodeOperationData.type !== workflowNodeEnum.selectorNode &&
         sourceNodeOperationData.type !== workflowNodeEnum.groupNode
       ) {
-        console.log(
-          sourceNodeOperationData.output,
-          sourceNodeOperationData.columns,
-        );
         dispatch(
           updateNodeOperation({
             workflowId: props.data.workflowId,
@@ -145,7 +141,6 @@ const FilterNode = memo((props: Props) => {
         }}
         isConnectableEnd={true}
         isConnectableStart={false}
-        onConnect={(params) => console.log('handle onConnect', params)}
         isConnectable={props.isConnectable}
       />
       <div className="shadow-md bg-slate-800 w-full max-w-sm">
@@ -160,7 +155,7 @@ const FilterNode = memo((props: Props) => {
             </button>
             <button
               disabled={!currentNodeOperation?.input?.length}
-              className="disabled:opacity-50 cursor-not-allowed"
+              className="disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={() => runOperation()}
             >
               <FaPlay />
