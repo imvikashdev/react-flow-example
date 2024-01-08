@@ -18,7 +18,7 @@ import { workflowNodeEnum } from '@/types/Builder.dto';
 import { sortData } from '@/utils/operations';
 import { memo, useCallback, useState } from 'react';
 import { FaGripVertical } from 'react-icons/fa';
-import { FaPlay, FaXmark } from 'react-icons/fa6';
+import { FaPlay, FaTriangleExclamation, FaXmark } from 'react-icons/fa6';
 import { useDispatch, useSelector } from 'react-redux';
 import { Connection, Handle, NodeProps, Position } from 'reactflow';
 
@@ -128,9 +128,6 @@ const SortNode = memo((props: Props) => {
           top: '20%',
         }}
         id="target-sort"
-        onConnect={(params) => {
-          console.log('handle onConnect', params);
-        }}
         isConnectableStart={false}
         isConnectableEnd={true}
         isConnectable={true}
@@ -145,61 +142,75 @@ const SortNode = memo((props: Props) => {
             <button onClick={() => removeNode(props.id)}>
               <FaXmark />
             </button>
-            <button onClick={() => runOperation()}>
+            <button
+              disabled={!currentNodeOperation?.input?.length}
+              className="disabled:opacity-50 cursor-not-allowed"
+              onClick={() => runOperation()}
+            >
               <FaPlay />
             </button>
           </div>
         </div>
         <div className="dark:bg-slate-400 me-2 px-3 py-4 dark:text-white rounded-md">
-          <div className="mb-4">
-            <Select
-              onValueChange={(e) => setSelectedKey(e)}
-              value={selectedKey}
-            >
-              <SelectTrigger className="w-[180px] bg-gray-700 border-0 text-white">
-                <SelectValue placeholder="Select Column" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup className="bg-gray-700 text-white border-0 outline-none">
-                  {currentNodeOperation?.columns.map((e) => (
-                    <SelectItem
-                      className="cursor-pointer !bg-gray-700 hover:bg-gray-700 !text-white"
-                      key={e}
-                      value={e}
-                    >
-                      {e}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Select
-              onValueChange={(e: 'asc' | 'dsc') => setSortOrder(e)}
-              value={sortOrder}
-            >
-              <SelectTrigger className="w-[180px] bg-gray-700 border-0 text-white">
-                <SelectValue placeholder="Sort Order" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup className="bg-gray-700 text-white !border-0 !outline-none">
-                  <SelectItem
-                    className="cursor-pointer !bg-gray-700 hover:bg-gray-700 !text-white"
-                    value={'asc'}
-                  >
-                    Ascending
-                  </SelectItem>
-                  <SelectItem
-                    className="cursor-pointer !bg-gray-700 hover:bg-gray-700 !text-white"
-                    value={'dsc'}
-                  >
-                    Descending
-                  </SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
+          {currentNodeOperation?.input?.length &&
+          currentNodeOperation?.input?.length > 0 ? (
+            <>
+              <div className="mb-4">
+                <Select
+                  onValueChange={(e) => setSelectedKey(e)}
+                  value={selectedKey}
+                >
+                  <SelectTrigger className="w-[180px] bg-gray-700 border-0 text-white">
+                    <SelectValue placeholder="Select Column" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup className="bg-gray-700 text-white border-0 outline-none">
+                      {currentNodeOperation?.columns.map((e) => (
+                        <SelectItem
+                          className="cursor-pointer !bg-gray-700 hover:bg-gray-700 !text-white"
+                          key={e}
+                          value={e}
+                        >
+                          {e}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Select
+                  onValueChange={(e: 'asc' | 'dsc') => setSortOrder(e)}
+                  value={sortOrder}
+                >
+                  <SelectTrigger className="w-[180px] bg-gray-700 border-0 text-white">
+                    <SelectValue placeholder="Sort Order" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup className="bg-gray-700 text-white !border-0 !outline-none">
+                      <SelectItem
+                        className="cursor-pointer !bg-gray-700 hover:bg-gray-700 !text-white"
+                        value={'asc'}
+                      >
+                        Ascending
+                      </SelectItem>
+                      <SelectItem
+                        className="cursor-pointer !bg-gray-700 hover:bg-gray-700 !text-white"
+                        value={'dsc'}
+                      >
+                        Descending
+                      </SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
+          ) : (
+            <div className="flex gap-2 items-center">
+              <FaTriangleExclamation className="text-red-400 inline" />
+              <span className="text-white"> Please Connect Data Source</span>
+            </div>
+          )}
         </div>
       </div>
       <Handle

@@ -12,7 +12,7 @@ import { workflowNodeEnum } from '@/types/Builder.dto';
 import { sliceData } from '@/utils/operations';
 import { memo, useCallback, useState } from 'react';
 import { FaGripVertical, FaPlay } from 'react-icons/fa';
-import { FaXmark } from 'react-icons/fa6';
+import { FaTriangleExclamation, FaXmark } from 'react-icons/fa6';
 import { useDispatch, useSelector } from 'react-redux';
 import { Connection, Handle, NodeProps, Position } from 'reactflow';
 
@@ -144,48 +144,62 @@ const SliceNode = memo((props: Props) => {
             <button onClick={() => removeNode(props.id)}>
               <FaXmark />
             </button>
-            <button onClick={() => runOperation()}>
+            <button
+              disabled={!currentNodeOperation?.input?.length}
+              className="disabled:opacity-50 cursor-not-allowed"
+              onClick={() => runOperation()}
+            >
               <FaPlay />
             </button>
           </div>
         </div>
         <div className="dark:bg-slate-400 me-2 px-3 py-4 dark:text-white rounded-md">
-          <div className="mb-4 grid w-full max-w-sm items-center gap-1.5">
-            <Label htmlFor="startIndex" className="text-white">
-              Start Index
-            </Label>
-            <Input
-              type="text"
-              className="text-white bg-gray-700 border-0"
-              id="startIndex"
-              value={startIndex}
-              title="start index"
-              onChange={(e) => {
-                if (!isNaN(Number(e.target.value))) {
-                  setStartIndex(e.target.value);
-                }
-              }}
-              placeholder="0"
-            />
-          </div>
-          <div className="mb-4 grid w-full max-w-sm items-center gap-1.5">
-            <Label htmlFor="endIndex" className="text-white">
-              End Index
-            </Label>
-            <Input
-              type="text"
-              id="endIndex"
-              className="text-white bg-gray-700 border-0"
-              placeholder="Email"
-              title="end index"
-              value={endIndex}
-              onChange={(e) => {
-                if (!isNaN(Number(e.target.value))) {
-                  setEndIndex(e.target.value);
-                }
-              }}
-            />
-          </div>
+          {currentNodeOperation?.input?.length &&
+          currentNodeOperation?.input?.length > 0 ? (
+            <>
+              <div className="mb-4 grid w-full max-w-sm items-center gap-1.5">
+                <Label htmlFor="startIndex" className="text-white">
+                  Start Index
+                </Label>
+                <Input
+                  type="text"
+                  className="text-white bg-gray-700 border-0"
+                  id="startIndex"
+                  value={startIndex}
+                  title="start index"
+                  onChange={(e) => {
+                    if (!isNaN(Number(e.target.value))) {
+                      setStartIndex(e.target.value);
+                    }
+                  }}
+                  placeholder="0"
+                />
+              </div>
+              <div className="mb-4 grid w-full max-w-sm items-center gap-1.5">
+                <Label htmlFor="endIndex" className="text-white">
+                  End Index
+                </Label>
+                <Input
+                  type="text"
+                  id="endIndex"
+                  className="text-white bg-gray-700 border-0"
+                  placeholder="Email"
+                  title="end index"
+                  value={endIndex}
+                  onChange={(e) => {
+                    if (!isNaN(Number(e.target.value))) {
+                      setEndIndex(e.target.value);
+                    }
+                  }}
+                />
+              </div>
+            </>
+          ) : (
+            <div className="flex gap-2 items-center">
+              <FaTriangleExclamation className="text-red-400 inline" />
+              <span className="text-white"> Please Connect Data Source</span>
+            </div>
+          )}
         </div>
       </div>
       <Handle

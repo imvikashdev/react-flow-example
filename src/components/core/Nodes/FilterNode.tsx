@@ -24,7 +24,7 @@ import { filterData } from '@/utils/operations';
 import { Select } from '@radix-ui/react-select';
 import { memo, useCallback, useState } from 'react';
 import { FaGripVertical, FaPlay } from 'react-icons/fa';
-import { FaXmark } from 'react-icons/fa6';
+import { FaTriangleExclamation, FaXmark } from 'react-icons/fa6';
 import { useDispatch, useSelector } from 'react-redux';
 import { Connection, Handle, NodeProps, Position } from 'reactflow';
 
@@ -158,57 +158,36 @@ const FilterNode = memo((props: Props) => {
             <button onClick={() => removeNode(props.id)}>
               <FaXmark />
             </button>
-            <button onClick={() => runOperation()}>
+            <button
+              disabled={!currentNodeOperation?.input?.length}
+              className="disabled:opacity-50 cursor-not-allowed"
+              onClick={() => runOperation()}
+            >
               <FaPlay />
             </button>
           </div>
         </div>
         <div className="dark:bg-slate-400 me-2 px-3 py-4 dark:text-white rounded-md">
-          <div className="mb-4">
-            <Select
-              onValueChange={(e) => {
-                setSelectedKey(e);
-                setValue('');
-                setFilterType('string');
-              }}
-              value={selectedKey}
-            >
-              <SelectTrigger className="w-[180px] bg-gray-700 border-0 text-white">
-                <SelectValue placeholder="Select Column" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup className="bg-gray-700 text-white border-0 outline-none">
-                  {currentNodeOperation?.columns.map((e) => (
-                    <SelectItem
-                      className="cursor-pointer !bg-gray-700 hover:bg-gray-700 !text-white"
-                      key={e}
-                      value={e}
-                    >
-                      {e}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
-          {selectedKey && (
+          {currentNodeOperation?.input?.length &&
+          currentNodeOperation?.input?.length > 0 ? (
             <>
               <div className="mb-4">
                 <Select
-                  onValueChange={(e: filterTypes) => {
-                    setFilterType(e);
+                  onValueChange={(e) => {
+                    setSelectedKey(e);
                     setValue('');
+                    setFilterType('string');
                   }}
-                  value={filterType}
+                  value={selectedKey}
                 >
-                  <SelectTrigger className="w-[180px] capitalize bg-gray-700 border-0 text-white">
-                    <SelectValue placeholder="Filter Type" />
+                  <SelectTrigger className="w-[180px] bg-gray-700 border-0 text-white">
+                    <SelectValue placeholder="Select Column" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectGroup className="bg-gray-700 capitalize text-white border-0 outline-none">
-                      {filterTypesOptions.map((e) => (
+                    <SelectGroup className="bg-gray-700 text-white border-0 outline-none">
+                      {currentNodeOperation?.columns.map((e) => (
                         <SelectItem
-                          className="capitalize cursor-pointer !bg-gray-700 hover:bg-gray-700 !text-white"
+                          className="cursor-pointer !bg-gray-700 hover:bg-gray-700 !text-white"
                           key={e}
                           value={e}
                         >
@@ -219,79 +198,114 @@ const FilterNode = memo((props: Props) => {
                   </SelectContent>
                 </Select>
               </div>
-              {(filterType === 'string' ||
-                filterType === 'number' ||
-                filterType === 'contains') && (
-                <div className="mb-4">
-                  <Label htmlFor="invert" className="text-white">
-                    Invert
-                  </Label>
-                  <div className="flex gap-4 items-center">
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        className="text-white bg-gray-700 border-0"
-                        id="invert-yes"
-                        name="invert"
-                        checked={invert}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setInvert(true);
-                          }
-                        }}
-                      />
-                      <Label htmlFor="invert-yes" className="text-white">
-                        Yes
-                      </Label>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        className="text-white bg-gray-700 border-0"
-                        id="invert-no"
-                        name="invert"
-                        checked={!invert}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setInvert(false);
-                          }
-                        }}
-                      />
-                      <Label htmlFor="invert-no" className="text-white">
-                        No
-                      </Label>
-                    </div>
+              {selectedKey && (
+                <>
+                  <div className="mb-4">
+                    <Select
+                      onValueChange={(e: filterTypes) => {
+                        setFilterType(e);
+                        setValue('');
+                      }}
+                      value={filterType}
+                    >
+                      <SelectTrigger className="w-[180px] capitalize bg-gray-700 border-0 text-white">
+                        <SelectValue placeholder="Filter Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup className="bg-gray-700 capitalize text-white border-0 outline-none">
+                          {filterTypesOptions.map((e) => (
+                            <SelectItem
+                              className="capitalize cursor-pointer !bg-gray-700 hover:bg-gray-700 !text-white"
+                              key={e}
+                              value={e}
+                            >
+                              {e}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                   </div>
-                </div>
-              )}
-              {filterType && (
-                <div className="mb-4 grid w-full max-w-sm items-center gap-1.5">
-                  <Label htmlFor="startIndex" className="text-white">
-                    Filter Value
-                  </Label>
-                  <Input
-                    type="text"
-                    className="text-white bg-gray-700 border-0"
-                    id="startIndex"
-                    value={value}
-                    title="filter value"
-                    onChange={(e) => {
-                      if (
-                        filterType === 'number' ||
-                        filterType === 'greater-than' ||
-                        filterType === 'less-than'
-                      ) {
-                        if (!isNaN(Number(e.target.value))) {
-                          setValue(e.target.value);
-                        }
-                      } else {
-                        setValue(e.target.value);
-                      }
-                    }}
-                  />
-                </div>
+                  {(filterType === 'string' ||
+                    filterType === 'number' ||
+                    filterType === 'contains') && (
+                    <div className="mb-4">
+                      <Label htmlFor="invert" className="text-white">
+                        Invert
+                      </Label>
+                      <div className="flex gap-4 items-center">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="radio"
+                            className="text-white bg-gray-700 border-0"
+                            id="invert-yes"
+                            name="invert"
+                            checked={invert}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setInvert(true);
+                              }
+                            }}
+                          />
+                          <Label htmlFor="invert-yes" className="text-white">
+                            Yes
+                          </Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="radio"
+                            className="text-white bg-gray-700 border-0"
+                            id="invert-no"
+                            name="invert"
+                            checked={!invert}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setInvert(false);
+                              }
+                            }}
+                          />
+                          <Label htmlFor="invert-no" className="text-white">
+                            No
+                          </Label>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {filterType && (
+                    <div className="mb-4 grid w-full max-w-sm items-center gap-1.5">
+                      <Label htmlFor="startIndex" className="text-white">
+                        Filter Value
+                      </Label>
+                      <Input
+                        type="text"
+                        className="text-white bg-gray-700 border-0"
+                        id="startIndex"
+                        value={value}
+                        title="filter value"
+                        onChange={(e) => {
+                          if (
+                            filterType === 'number' ||
+                            filterType === 'greater-than' ||
+                            filterType === 'less-than'
+                          ) {
+                            if (!isNaN(Number(e.target.value))) {
+                              setValue(e.target.value);
+                            }
+                          } else {
+                            setValue(e.target.value);
+                          }
+                        }}
+                      />
+                    </div>
+                  )}
+                </>
               )}
             </>
+          ) : (
+            <div className="flex gap-2 items-center">
+              <FaTriangleExclamation className="text-red-400 inline" />
+              <span className="text-white"> Please Connect Data Source</span>
+            </div>
           )}
         </div>
       </div>
