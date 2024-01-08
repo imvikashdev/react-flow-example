@@ -44,8 +44,8 @@ const generateWorkFlowOperation = (
         operationParams: {
           key: 'select',
           value: '',
-          isEqual: true,
-          isRegex: false,
+          invert: true,
+          filterType: 'string',
         },
         columns: [],
         output: [],
