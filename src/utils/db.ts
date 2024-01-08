@@ -12,8 +12,12 @@ async function openDatabase() {
 export async function saveWorkflows(workflows: Array<WorkFlowDto>) {
   const db = await openDatabase();
   const tx = db.transaction('workflows', 'readwrite');
-  tx.store.put(workflows, 'workflows');
-  await tx.done;
+  const result = await tx.store.put(workflows, 'workflows');
+  if (result) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 export async function getWorkflows() {
