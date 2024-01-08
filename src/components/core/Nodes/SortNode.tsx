@@ -76,7 +76,11 @@ const SortNode = memo((props: Props) => {
       dispatch(
         setCurrentData({
           workflowId: props.data.workflowId,
-          data: { type: 'array', data: sortedData },
+          data: {
+            type: 'array',
+            columns: currentNodeOperation.columns,
+            data: sortedData,
+          },
         }),
       );
     }

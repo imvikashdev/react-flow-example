@@ -13,6 +13,7 @@ import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Navigate, useParams } from 'react-router-dom';
 import Papa from 'papaparse';
+import { DataTable } from '@/components/core/Table';
 
 const WorkFlow = () => {
   const [expandFooter, setExpandFooter] = useState(false);
@@ -92,38 +93,47 @@ const WorkFlow = () => {
       </main>
       <footer
         className={`${
-          expandFooter ? 'h-40 md:h-60 p-2' : 'h-0'
+          expandFooter ? 'h-80 md:h-80 p-2' : 'h-0'
         } transition-[height]  pt-0 overflow-auto`}
       >
-        <div className="h-full bg-slate-700 rounded-md shadow p-4">
+        <div className="h-full flex gap-2 bg-slate-700 rounded-md shadow p-4">
           {currentWorkflow?.currentData && (
-            <pre className="h-full overflow-y-scroll relative">
-              {currentWorkflow?.currentData && (
-                <div className="flex gap-2 right-0 item-center absolute">
-                  <Button
-                    onClick={() => {
-                      if (currentWorkflow?.currentData)
-                        saveJSONFile(currentWorkflow.currentData);
-                    }}
-                  >
-                    Download Json
-                  </Button>
-                  <Button
-                    disabled={currentWorkflow?.currentData.type === 'object'}
-                    onClick={() => {
-                      if (
-                        currentWorkflow.currentData &&
-                        currentWorkflow?.currentData.type === 'array'
-                      )
-                        saveCSVFile(currentWorkflow?.currentData.data);
-                    }}
-                  >
-                    Download CSV
-                  </Button>
-                </div>
+            <div className="h-full overflow-y-scroll rounded-lg">
+              {currentWorkflow.currentData.type === 'array' ? (
+                <DataTable
+                  data={currentWorkflow?.currentData.data || []}
+                  columns={currentWorkflow.currentData.columns || []}
+                />
+              ) : (
+                <pre>
+                  {JSON.stringify(currentWorkflow?.currentData.data, null, 2)}
+                </pre>
               )}
-              {JSON.stringify(currentWorkflow?.currentData.data, null, 2)}
-            </pre>
+            </div>
+          )}
+          {currentWorkflow?.currentData && (
+            <div className="flex flex-col gap-2 justify-start item-center mb-2">
+              <Button
+                onClick={() => {
+                  if (currentWorkflow?.currentData)
+                    saveJSONFile(currentWorkflow.currentData);
+                }}
+              >
+                Download Json
+              </Button>
+              <Button
+                disabled={currentWorkflow?.currentData.type === 'object'}
+                onClick={() => {
+                  if (
+                    currentWorkflow.currentData &&
+                    currentWorkflow?.currentData.type === 'array'
+                  )
+                    saveCSVFile(currentWorkflow?.currentData.data);
+                }}
+              >
+                Download CSV
+              </Button>
+            </div>
           )}
         </div>
       </footer>

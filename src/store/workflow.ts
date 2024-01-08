@@ -45,6 +45,7 @@ export interface ArrayDataType {
   data: Array<{
     [key: string]: string | number | boolean;
   }>;
+  columns: Array<string>;
   type: 'array';
 }
 

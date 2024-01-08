@@ -87,6 +87,7 @@ const FilterNode = memo((props: Props) => {
           workflowId: props.data.workflowId,
           data: {
             type: 'array',
+            columns: currentNodeOperation.columns,
             data: filteredData,
           },
         }),

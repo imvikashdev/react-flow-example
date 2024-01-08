@@ -71,7 +71,11 @@ const SliceNode = memo((props: Props) => {
       dispatch(
         setCurrentData({
           workflowId: props.data.workflowId,
-          data: { type: 'array', data: slicedData },
+          data: {
+            type: 'array',
+            columns: currentNodeOperation.columns,
+            data: slicedData,
+          },
         }),
       );
     }
