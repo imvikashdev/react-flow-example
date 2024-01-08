@@ -98,7 +98,7 @@ const WorkFlow = () => {
       >
         <div className="h-full flex gap-2 bg-slate-700 rounded-md shadow p-4">
           {currentWorkflow?.currentData && (
-            <div className="h-full overflow-y-scroll rounded-lg">
+            <div className="h-full flex-grow overflow-y-scroll rounded-lg">
               {currentWorkflow.currentData.type === 'array' ? (
                 <DataTable
                   data={currentWorkflow?.currentData.data || []}
@@ -112,7 +112,7 @@ const WorkFlow = () => {
             </div>
           )}
           {currentWorkflow?.currentData && (
-            <div className="flex flex-col gap-2 justify-start item-center mb-2">
+            <div className="flex flex-col gap-2 pl-3 pr-1 justify-start item-center mb-2">
               <Button
                 onClick={() => {
                   if (currentWorkflow?.currentData)

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 function Home() {
   return (
-    <section className="w-full pt-12 md:pt-24 lg:pt-32 bg-[#064420] dark:bg-[#064420] bg-pattern">
+    <section className="w-full h-screen pt-12 md:pt-24 lg:pt-32 bg-[#064420] dark:bg-[#064420] bg-pattern">
       <div className="container space-y-10 xl:space-y-16">
         <div className="flex flex-col items-center space-y-4 text-center">
           <div className="space-y-2">
@@ -23,13 +23,13 @@ function Home() {
             </Link>
           </div>
         </div>
-        <img
-          alt="Hero"
-          className="mx-auto aspect-[3/1] overflow-hidden rounded-t-xl object-cover object-center"
-          height="300"
-          src="/placeholder.svg"
-          width="1200"
-        />
+        <div className="h-96 shadow-lg">
+          <img
+            alt="Hero"
+            className="mx-auto h-full overflow-hidden rounded-t-xl object-cover object-center"
+            src="/demo.png"
+          />
+        </div>
       </div>
     </section>
   );
