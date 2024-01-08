@@ -150,8 +150,13 @@ const InputNode = memo((props: Props) => {
         }}
         type="source"
         onConnect={(params) => updateTargetNodeOperation(params)}
+        isValidConnection={(connection) => {
+          return connection.source !== connection.target;
+        }}
+        isConnectableEnd={false}
+        isConnectableStart={true}
         position={Position.Right}
-        id="a"
+        id="data-source"
       />
     </div>
   );

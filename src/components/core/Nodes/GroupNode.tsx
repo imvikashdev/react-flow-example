@@ -1,8 +1,25 @@
-import { removeCSVDataByNodeId, removeWorkFlowNode } from '@/store/workflow';
-import { memo, useCallback } from 'react';
-import { FaGripVertical } from 'react-icons/fa';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { ReduxStore } from '@/store';
+import {
+  getNodeOperationData,
+  removeCSVDataByNodeId,
+  removeWorkFlowNode,
+  setCurrentData,
+  updateNodeOperation,
+} from '@/store/workflow';
+import { workflowNodeEnum } from '@/types/Builder.dto';
+import { groupData } from '@/utils/operations';
+import { memo, useCallback, useState } from 'react';
+import { FaGripVertical, FaPlay } from 'react-icons/fa';
 import { FaXmark } from 'react-icons/fa6';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Handle, NodeProps, Position } from 'reactflow';
 
 declare type Props = NodeProps & {
@@ -13,6 +30,15 @@ declare type Props = NodeProps & {
 };
 const GroupNode = memo((props: Props) => {
   const dispatch = useDispatch();
+  const [selectedKey, setSelectedKey] = useState('');
+
+  const nodeOperations = useSelector((state: ReduxStore) =>
+    getNodeOperationData(state, { workflowId: props.data.workflowId }),
+  );
+
+  const currentNodeOperation = nodeOperations?.find(
+    (e) => e.nodeId === props.id,
+  );
 
   const removeNode = useCallback(
     (nodeId: string) => {
@@ -28,6 +54,33 @@ const GroupNode = memo((props: Props) => {
     },
     [dispatch, props.data.workflowId],
   );
+
+  const runOperation = () => {
+    if (
+      currentNodeOperation &&
+      currentNodeOperation.type === workflowNodeEnum.groupNode
+    ) {
+      console.log(currentNodeOperation.input, selectedKey);
+      const groupedData = groupData(currentNodeOperation.input, selectedKey);
+      dispatch(
+        updateNodeOperation({
+          workflowId: props.data.workflowId,
+          nodeId: currentNodeOperation.nodeId,
+          nodeOperation: { ...currentNodeOperation, output: groupedData },
+        }),
+      );
+      dispatch(
+        setCurrentData({
+          workflowId: props.data.workflowId,
+          data: {
+            type: 'object',
+            data: groupedData,
+          },
+        }),
+      );
+    }
+  };
+
   return (
     <div className="rounded-lg flex  shadow-md bg-slate-800">
       <Handle
@@ -45,6 +98,8 @@ const GroupNode = memo((props: Props) => {
           console.log(connection);
           return true;
         }}
+        isConnectableStart={false}
+        isConnectableEnd={true}
         onConnect={(params) => console.log('handle onConnect', params)}
         isConnectable={props.isConnectable}
       />
@@ -54,23 +109,43 @@ const GroupNode = memo((props: Props) => {
             <FaGripVertical className="inline" />
             <span className="text-sm">Group Data</span>
           </div>
-          <button onClick={() => removeNode(props.id)}>
-            <FaXmark />
-          </button>
+          <div className="flex gap-2 items-center">
+            <button onClick={() => removeNode(props.id)}>
+              <FaXmark />
+            </button>
+            <button onClick={() => runOperation()}>
+              <FaPlay />
+            </button>
+          </div>
         </div>
-        <div className="dark:bg-slate-400 me-2 px-3 py-2 dark:text-white rounded-md">
-          Group Data
+        <div className="dark:bg-slate-400 me-2 px-3 py-4 dark:text-white rounded-md">
+          <div className="mb-4">
+            <Select
+              onValueChange={(e) => {
+                setSelectedKey(e);
+              }}
+              value={selectedKey}
+            >
+              <SelectTrigger className="w-[180px] bg-gray-700 border-0 text-white">
+                <SelectValue placeholder="Select Column" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup className="bg-gray-700 text-white border-0 outline-none">
+                  {currentNodeOperation?.columns.map((e) => (
+                    <SelectItem
+                      className="cursor-pointer !bg-gray-700 hover:bg-gray-700 !text-white"
+                      key={e}
+                      value={e}
+                    >
+                      {e}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
-      {/* <Handle
-        className="!w-3 !relative !translate-x-0 !translate-y-0 !inset-0 !border-0 px-2 !rounded-l-none !rounded-r-md"
-        style={{
-          height: 'initial',
-        }}
-        type="source"
-        position={Position.Right}
-        id="a"
-      /> */}
     </div>
   );
 });

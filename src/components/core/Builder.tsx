@@ -47,7 +47,11 @@ const Builder = ({ workflow }: Props) => {
 
   const onConnect = useCallback(
     (params: Connection) => {
-      if (params.source && params.target && params.sourceHandle)
+      const edgeExist = workflow.workFlowEdges.find(
+        (e) => e.source === params.source && e.target === params.target,
+      );
+
+      if (params.source && params.target && params.sourceHandle && !edgeExist)
         dispatch(
           addWorkFlowEdge({
             workflowId: workflow.id,
@@ -61,7 +65,7 @@ const Builder = ({ workflow }: Props) => {
           }),
         );
     },
-    [dispatch, workflow.id],
+    [dispatch, workflow.id, workflow.workFlowEdges],
   );
 
   const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
@@ -90,52 +94,19 @@ const Builder = ({ workflow }: Props) => {
         y: event.clientY,
       });
 
-      switch (type) {
-        case 'selectorNode':
-          dispatch(
-            addWorkFlowNode({
+      dispatch(
+        addWorkFlowNode({
+          workflowId: workflow.id,
+          node: {
+            id: uuid(),
+            type,
+            position,
+            data: {
               workflowId: workflow.id,
-              node: {
-                id: uuid(),
-                type,
-                position,
-                data: {
-                  workflowId: workflow.id,
-                },
-              },
-            }),
-          );
-          break;
-        case 'sortNode':
-          dispatch(
-            addWorkFlowNode({
-              workflowId: workflow.id,
-              node: {
-                id: uuid(),
-                type,
-                position,
-                data: {
-                  workflowId: workflow.id,
-                },
-              },
-            }),
-          );
-          break;
-        default:
-          dispatch(
-            addWorkFlowNode({
-              workflowId: workflow.id,
-              node: {
-                id: uuid(),
-                type,
-                position,
-                data: {
-                  workflowId: workflow.id,
-                },
-              },
-            }),
-          );
-      }
+            },
+          },
+        }),
+      );
     },
     [reactFlowInstance, workflow.id, dispatch],
   );

@@ -1,9 +1,20 @@
-import { removeCSVDataByNodeId, removeWorkFlowNode } from '@/store/workflow';
-import { memo, useCallback } from 'react';
-import { FaGripVertical } from 'react-icons/fa';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ReduxStore } from '@/store';
+import {
+  getNodeOperationData,
+  removeCSVDataByNodeId,
+  removeWorkFlowNode,
+  setCurrentData,
+  updateNodeOperation,
+} from '@/store/workflow';
+import { workflowNodeEnum } from '@/types/Builder.dto';
+import { sliceData } from '@/utils/operations';
+import { memo, useCallback, useState } from 'react';
+import { FaGripVertical, FaPlay } from 'react-icons/fa';
 import { FaXmark } from 'react-icons/fa6';
-import { useDispatch } from 'react-redux';
-import { Handle, NodeProps, Position } from 'reactflow';
+import { useDispatch, useSelector } from 'react-redux';
+import { Connection, Handle, NodeProps, Position } from 'reactflow';
 
 declare type Props = NodeProps & {
   isConnectable: boolean;
@@ -14,6 +25,16 @@ declare type Props = NodeProps & {
 
 const SliceNode = memo((props: Props) => {
   const dispatch = useDispatch();
+  const [startIndex, setStartIndex] = useState('0');
+  const [endIndex, setEndIndex] = useState('10');
+
+  const nodeOperations = useSelector((state: ReduxStore) =>
+    getNodeOperationData(state, { workflowId: props.data.workflowId }),
+  );
+
+  const currentNodeOperation = nodeOperations?.find(
+    (e) => e.nodeId === props.id,
+  );
 
   const removeNode = useCallback(
     (nodeId: string) => {
@@ -30,6 +51,67 @@ const SliceNode = memo((props: Props) => {
     [dispatch, props.data.workflowId],
   );
 
+  const runOperation = () => {
+    if (
+      currentNodeOperation &&
+      currentNodeOperation.type === workflowNodeEnum.sliceNode
+    ) {
+      const slicedData = sliceData(
+        currentNodeOperation.input,
+        Number(startIndex),
+        Number(endIndex),
+      );
+      dispatch(
+        updateNodeOperation({
+          workflowId: props.data.workflowId,
+          nodeId: currentNodeOperation.nodeId,
+          nodeOperation: { ...currentNodeOperation, output: slicedData },
+        }),
+      );
+      dispatch(
+        setCurrentData({
+          workflowId: props.data.workflowId,
+          data: { type: 'array', data: slicedData },
+        }),
+      );
+    }
+  };
+
+  const updateTargetNodeOperation = useCallback(
+    (params: Connection) => {
+      const targetedNodeOperationData = nodeOperations?.find(
+        (e) => e.nodeId === params.target,
+      );
+      const sourceNodeOperationData = nodeOperations?.find(
+        (e) => e.nodeId === params.source,
+      );
+      if (
+        sourceNodeOperationData &&
+        params.source &&
+        targetedNodeOperationData &&
+        params.target &&
+        targetedNodeOperationData.type !== workflowNodeEnum.selectorNode &&
+        sourceNodeOperationData.type !== workflowNodeEnum.groupNode
+      ) {
+        console.log(
+          sourceNodeOperationData.output,
+          sourceNodeOperationData.columns,
+        );
+        dispatch(
+          updateNodeOperation({
+            workflowId: props.data.workflowId,
+            nodeId: params.target,
+            nodeOperation: {
+              ...targetedNodeOperationData,
+              input: sourceNodeOperationData.output,
+              columns: sourceNodeOperationData.columns,
+            },
+          }),
+        );
+      }
+    },
+    [nodeOperations, dispatch, props.data.workflowId],
+  );
   return (
     <div className="rounded-lg flex  shadow-md bg-slate-800">
       <Handle
@@ -48,7 +130,9 @@ const SliceNode = memo((props: Props) => {
           return true;
         }}
         onConnect={(params) => console.log('handle onConnect', params)}
-        isConnectable={props.isConnectable}
+        isConnectableStart={false}
+        isConnectableEnd={true}
+        isConnectable={true}
       />
       <div className="shadow-md bg-slate-800 w-full max-w-sm">
         <div className="text-slate-300 flex items-center justify-between px-2 py-1 bg-slate-600">
@@ -56,12 +140,52 @@ const SliceNode = memo((props: Props) => {
             <FaGripVertical className="inline" />
             <span className="text-sm">Slice Data</span>
           </div>
-          <button onClick={() => removeNode(props.id)}>
-            <FaXmark />
-          </button>
+          <div className="flex gap-2 items-center">
+            <button onClick={() => removeNode(props.id)}>
+              <FaXmark />
+            </button>
+            <button onClick={() => runOperation()}>
+              <FaPlay />
+            </button>
+          </div>
         </div>
-        <div className="dark:bg-slate-400 me-2 px-3 py-2 dark:text-white rounded-md">
-          Sort Data
+        <div className="dark:bg-slate-400 me-2 px-3 py-4 dark:text-white rounded-md">
+          <div className="mb-4 grid w-full max-w-sm items-center gap-1.5">
+            <Label htmlFor="startIndex" className="text-white">
+              Start Index
+            </Label>
+            <Input
+              type="text"
+              className="text-white bg-gray-700 border-0"
+              id="startIndex"
+              value={startIndex}
+              title="start index"
+              onChange={(e) => {
+                if (!isNaN(Number(e.target.value))) {
+                  setStartIndex(e.target.value);
+                }
+              }}
+              placeholder="0"
+            />
+          </div>
+          <div className="mb-4 grid w-full max-w-sm items-center gap-1.5">
+            <Label htmlFor="endIndex" className="text-white">
+              End Index
+            </Label>
+            <Input
+              type="text"
+              id="endIndex"
+              className="text-white bg-gray-700 border-0"
+              placeholder="Email"
+              title="end index"
+              value={endIndex}
+              onChange={(e) => {
+                if (!isNaN(Number(e.target.value))) {
+                  setEndIndex(e.target.value);
+                }
+              }}
+            />
+          </div>
         </div>
       </div>
       <Handle
@@ -71,6 +195,12 @@ const SliceNode = memo((props: Props) => {
         }}
         type="source"
         position={Position.Right}
+        isConnectableEnd={false}
+        isValidConnection={(connection) => {
+          return connection.source !== connection.target;
+        }}
+        isConnectableStart={true}
+        onConnect={(params) => updateTargetNodeOperation(params)}
         id="a"
       />
     </div>

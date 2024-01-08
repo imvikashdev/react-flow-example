@@ -20,7 +20,7 @@ import { memo, useCallback, useState } from 'react';
 import { FaGripVertical } from 'react-icons/fa';
 import { FaPlay, FaXmark } from 'react-icons/fa6';
 import { useDispatch, useSelector } from 'react-redux';
-import { Handle, NodeProps, Position } from 'reactflow';
+import { Connection, Handle, NodeProps, Position } from 'reactflow';
 
 declare type Props = NodeProps & {
   isConnectable: boolean;
@@ -76,11 +76,43 @@ const SortNode = memo((props: Props) => {
       dispatch(
         setCurrentData({
           workflowId: props.data.workflowId,
-          data: sortedData,
+          data: { type: 'array', data: sortedData },
         }),
       );
     }
   };
+
+  const updateTargetNodeOperation = useCallback(
+    (params: Connection) => {
+      const targetedNodeOperationData = nodeOperations?.find(
+        (e) => e.nodeId === params.target,
+      );
+      const sourceNodeOperationData = nodeOperations?.find(
+        (e) => e.nodeId === params.source,
+      );
+      if (
+        sourceNodeOperationData &&
+        params.source &&
+        targetedNodeOperationData &&
+        params.target &&
+        targetedNodeOperationData.type !== workflowNodeEnum.selectorNode &&
+        sourceNodeOperationData.type !== workflowNodeEnum.groupNode
+      ) {
+        dispatch(
+          updateNodeOperation({
+            workflowId: props.data.workflowId,
+            nodeId: params.target,
+            nodeOperation: {
+              ...targetedNodeOperationData,
+              input: sourceNodeOperationData.output,
+              columns: sourceNodeOperationData.columns,
+            },
+          }),
+        );
+      }
+    },
+    [nodeOperations, dispatch, props.data.workflowId],
+  );
 
   return (
     <div className="rounded-lg flex  shadow-md bg-slate-800">
@@ -95,9 +127,12 @@ const SortNode = memo((props: Props) => {
           left: '-15px',
           top: '20%',
         }}
+        id="target-sort"
         onConnect={(params) => {
           console.log('handle onConnect', params);
         }}
+        isConnectableStart={false}
+        isConnectableEnd={true}
         isConnectable={true}
       />
       <div className="shadow-md bg-slate-800 w-full max-w-sm">
@@ -173,6 +208,12 @@ const SortNode = memo((props: Props) => {
           height: 'initial',
         }}
         type="source"
+        onConnect={(params) => updateTargetNodeOperation(params)}
+        isValidConnection={(connection) => {
+          return connection.source !== connection.target;
+        }}
+        isConnectableEnd={false}
+        isConnectableStart={true}
         position={Position.Right}
         id="a"
       />

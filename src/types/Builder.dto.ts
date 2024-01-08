@@ -8,6 +8,26 @@ export const workflowNodeOptions = [
 
 export declare type workflowNodeTypes = (typeof workflowNodeOptions)[number];
 
+export const filterTypesOptions = [
+  'string',
+  'number',
+  'contains',
+  'regex',
+  'greater-than',
+  'less-than',
+] as const;
+
+export declare type filterTypes = (typeof filterTypesOptions)[number];
+
+export enum filterTypesEnum {
+  string = 'string',
+  number = 'number',
+  contains = 'contains',
+  regex = 'regex',
+  'greater-than' = 'greater-than',
+  'less-than' = 'less-than',
+}
+
 export type csvDataArrayType = Array<{
   [key: string]: string | number | boolean;
 }>;
@@ -59,8 +79,8 @@ export interface filterNodeType {
   operationParams: {
     key: string;
     value: string;
-    isEqual: boolean;
-    isRegex: boolean;
+    filterType: filterTypes;
+    invert: boolean;
   };
   columns: Array<string>;
   output: csvDataArrayType;

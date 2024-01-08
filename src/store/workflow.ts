@@ -41,13 +41,27 @@ export interface WorkFlowEdge {
   targetHandle: null | string;
 }
 
+export interface ArrayDataType {
+  data: Array<{
+    [key: string]: string | number | boolean;
+  }>;
+  type: 'array';
+}
+
+export interface ObjectDataType {
+  data: {
+    [key: string]: Array<{
+      [key: string]: string | number | boolean;
+    }>;
+  };
+  type: 'object';
+}
+
 export interface WorkFlowDto {
   id: string;
   name: string;
   data?: Array<WorkFlowCSVData>;
-  currentData?: Array<{
-    [key: string]: string | number | boolean;
-  }>;
+  currentData?: ArrayDataType | ObjectDataType;
   nodeOperation: NodeOperationTypes;
   workFlowNodes: Array<WorkFlowNode>;
   workFlowEdges: Array<WorkFlowEdge>;
@@ -75,9 +89,7 @@ const WorkFlowSlice = createSlice({
       state,
       action: PayloadAction<{
         workflowId: string;
-        data: Array<{
-          [key: string]: string | number | boolean;
-        }>;
+        data: ArrayDataType | ObjectDataType;
       }>,
     ) => {
       const workflow = state.workflows.find(
@@ -96,8 +108,31 @@ const WorkFlowSlice = createSlice({
       const workflow = state.workflows.find((flow) => flow.id === workflowId);
       if (workflow) {
         workflow.data = [...(workflow?.data || []), data];
+
+        const nodesOperationToBeUpdates = workflow.workFlowEdges
+          .filter((edge) => edge.source === data.nodeId)
+          .map((edge) => edge.target);
+
+        console.log(nodesOperationToBeUpdates);
+
+        const updatedOperationNodes: NodeOperationTypes =
+          workflow.nodeOperation.map((operation) => {
+            if (
+              nodesOperationToBeUpdates.includes(operation.nodeId) &&
+              operation.type !== workflowNodeEnum.selectorNode
+            ) {
+              return {
+                ...operation,
+                input: data.csvData,
+                columns: data.columns,
+              };
+            } else {
+              return operation;
+            }
+          });
+
         workflow.nodeOperation = [
-          ...workflow.nodeOperation,
+          ...updatedOperationNodes,
           {
             nodeId: data.nodeId,
             type: workflowNodeEnum.selectorNode,
@@ -185,8 +220,15 @@ const WorkFlowSlice = createSlice({
         workflow.workFlowNodes = workflow.workFlowNodes.filter(
           (node) => node.id !== action.payload.nodeId,
         );
+        workflow.nodeOperation = workflow.nodeOperation.filter(
+          (operation) => operation.nodeId !== action.payload.nodeId,
+        );
         workflow.workFlowEdges = workflow.workFlowEdges.filter(
-          (edge) => edge.source !== action.payload.nodeId,
+          (edge) =>
+            !(
+              edge.source === action.payload.nodeId ||
+              edge.target === action.payload.nodeId
+            ),
         );
       }
     },
@@ -204,10 +246,6 @@ const WorkFlowSlice = createSlice({
           action.payload.edge,
         ];
       }
-    },
-
-    onNodeConnect: (state, action) => {
-      console.log(action.payload);
     },
 
     setWorkFlowFromDb: (state, action: PayloadAction<WorkFlowDto[]>) => {
@@ -289,7 +327,6 @@ export const {
   removeCSVDataByNodeId,
   updateNodeOperation,
   setCurrentData,
-  onNodeConnect,
   deleteWorkFlow,
 } = WorkFlowSlice.actions;
 
