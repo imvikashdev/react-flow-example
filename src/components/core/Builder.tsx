@@ -4,7 +4,9 @@ import ReactFlow, {
   BackgroundVariant,
   Connection,
   Controls,
+  Edge,
   MiniMap,
+  Node,
   ReactFlowInstance,
   useEdgesState,
   useNodesState,
@@ -43,7 +45,7 @@ const Builder = ({ workflow }: Props) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [reactFlowInstance, setReactFlowInstance] = useState<
-    ReactFlowInstance<any, any> | undefined
+    ReactFlowInstance<Node, Edge> | undefined
   >(undefined);
 
   const onConnect = useCallback(
