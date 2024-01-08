@@ -1,5 +1,5 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import ErrorPage from './pages/ErrorPage';
+import ErrorPage from './pages/404Page';
 import Dashboard from './pages/Dashboard';
 import WorkFlow from './pages/WorkFlow';
 import Home from './pages/Home';
@@ -22,6 +22,7 @@ const router = createBrowserRouter([
   {
     path: 'workflow/:workflowId',
     element: <WorkFlow />,
+    errorElement: <ErrorPage />,
   },
 ]);
 
