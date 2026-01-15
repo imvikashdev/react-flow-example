@@ -21,6 +21,7 @@ import { FaGripVertical, FaPlay } from 'react-icons/fa';
 import { FaTriangleExclamation, FaXmark } from 'react-icons/fa6';
 import { useDispatch, useSelector } from 'react-redux';
 import { Handle, NodeProps, Position } from 'reactflow';
+import { Layers } from 'lucide-react';
 
 declare type Props = NodeProps & {
   isConnectable: boolean;
@@ -81,42 +82,42 @@ const GroupNode = memo((props: Props) => {
   };
 
   return (
-    <div className="rounded-lg flex  shadow-md bg-slate-800">
+    <div className="rounded-lg flex shadow-lg bg-card border border-border/50 overflow-hidden min-w-[300px]">
       <Handle
-        className="!rounded-l-md !rounded-r-none"
+        className="!w-3 !h-6 !bg-primary !border-2 !border-background !rounded-full !-left-[6px]"
         type="target"
         position={Position.Left}
-        style={{
-          width: '16px',
-          height: '28px',
-          border: '0',
-          left: '-15px',
-          top: '20%',
-        }}
+        style={{ top: '50%', transform: 'translateY(-50%)' }}
         isConnectableStart={false}
         isConnectableEnd={true}
         isConnectable={props.isConnectable}
       />
-      <div className="shadow-md bg-slate-800 w-full max-w-sm">
-        <div className="text-slate-300 flex items-center justify-between px-2 py-1 bg-slate-600">
+      <div className="w-full">
+        <div className="text-card-foreground flex items-center justify-between px-3 py-2 bg-muted/40 border-b border-border/50">
           <div className="flex gap-2 items-center">
-            <FaGripVertical className="inline" />
-            <span className="text-sm">Group Data</span>
+            <FaGripVertical className="text-muted-foreground/50" />
+            <span className="text-sm font-medium flex items-center gap-2">
+              <Layers className="h-4 w-4 text-primary" />
+              Group Data
+            </span>
           </div>
           <div className="flex gap-2 items-center">
-            <button onClick={() => removeNode(props.id)}>
+            <button
+              onClick={() => removeNode(props.id)}
+              className="text-muted-foreground hover:text-destructive transition-colors"
+            >
               <FaXmark />
             </button>
             <button
               disabled={!currentNodeOperation?.input?.length}
-              className="disabled:opacity-50 disabled:cursor-not-allowed"
+              className="disabled:opacity-50 disabled:cursor-not-allowed bg-primary text-primary-foreground p-1.5 rounded-md hover:bg-primary/90 transition-colors"
               onClick={() => runOperation()}
             >
-              <FaPlay />
+              <FaPlay className="text-[10px]" />
             </button>
           </div>
         </div>
-        <div className="dark:bg-slate-400 me-2 px-3 py-4 dark:text-white rounded-md">
+        <div className="p-4">
           {currentNodeOperation?.input?.length &&
           currentNodeOperation?.input?.length > 0 ? (
             <div className="mb-4">
@@ -126,17 +127,13 @@ const GroupNode = memo((props: Props) => {
                 }}
                 value={selectedKey}
               >
-                <SelectTrigger className="w-[180px] bg-gray-700 border-0 text-white">
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select Column" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectGroup className="bg-gray-700 text-white border-0 outline-none">
+                  <SelectGroup>
                     {currentNodeOperation?.columns.map((e) => (
-                      <SelectItem
-                        className="cursor-pointer !bg-gray-700 hover:bg-gray-700 !text-white"
-                        key={e}
-                        value={e}
-                      >
+                      <SelectItem key={e} value={e}>
                         {e}
                       </SelectItem>
                     ))}
@@ -145,9 +142,11 @@ const GroupNode = memo((props: Props) => {
               </Select>
             </div>
           ) : (
-            <div className="flex gap-2 items-center">
-              <FaTriangleExclamation className="text-red-400 inline" />
-              <span className="text-white"> Please Connect Data Source</span>
+            <div className="flex gap-2 items-center justify-center p-4 bg-muted/20 rounded-md border border-dashed border-border/50">
+              <FaTriangleExclamation className="text-amber-500" />
+              <span className="text-sm text-muted-foreground">
+                Connect Data Source
+              </span>
             </div>
           )}
         </div>

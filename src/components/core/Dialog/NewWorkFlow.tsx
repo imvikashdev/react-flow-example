@@ -37,7 +37,10 @@ const NewWorkFlow = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="w-full" size="lg">
+        <Button
+          size="lg"
+          className="cursor-pointer shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all"
+        >
           Create New Workflow
         </Button>
       </DialogTrigger>

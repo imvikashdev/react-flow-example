@@ -1,183 +1,184 @@
-import React from 'react';
+// import React from 'react';
 import { Input } from '@/components/ui/input';
-
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import NewWorkFlow from '@/components/core/Dialog/NewWorkFlow';
 import { useDispatch, useSelector } from 'react-redux';
 import { dataFetched, deleteWorkFlow, getWorkFlowList } from '@/store/workflow';
-import { FaPen, FaTrash } from 'react-icons/fa';
+import { FaPen, FaTrash, FaSearch } from 'react-icons/fa';
 import Loader from '@/components/core/Loader';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { LayoutDashboard, Zap, FolderOpen } from 'lucide-react';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
   const workFLowList = useSelector(getWorkFlowList);
   const isLoading = useSelector(dataFetched);
+  const location = useLocation();
 
   if (isLoading) {
-    return <Loader />;
+    return (
+      <div className="flex items-center justify-center h-screen bg-background text-primary">
+        <Loader />
+      </div>
+    );
   }
 
   return (
-    <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
-      <div className="hidden border-r bg-gray-100/40 lg:block dark:bg-gray-800/40">
-        <div className="flex h-full max-h-screen flex-col gap-2">
-          <div className="flex h-[60px] items-center border-b px-6">
-            <Link className="flex items-center gap-2 font-semibold" to={'/'}>
-              <WorkflowIcon className="h-6 w-6" />
-              <span className="">FlowCraft</span>
+    <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr] bg-background">
+      {/* Sidebar */}
+      <div className="hidden border-r border-border/50 bg-card/60 backdrop-blur-xl lg:block">
+        <div className="flex h-full max-h-screen flex-col gap-4">
+          <div className="flex h-16 items-center px-6 border-b border-border/50">
+            <Link
+              className="flex items-center gap-2 font-bold text-2xl"
+              to={'/'}
+            >
+              <div className="p-1 rounded-lg bg-primary/20 text-primary">
+                <Zap className="h-6 w-6" />
+              </div>
+              <span className="text-foreground tracking-tight">FlowCraft</span>
             </Link>
           </div>
-          <div className="flex-1 overflow-auto py-2">
-            <nav className="grid items-start px-4 text-sm font-medium">
+          <div className="flex-1 overflow-auto py-4 px-3">
+            <nav className="grid items-start gap-2 text-sm font-medium">
               <Link
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
+                className={cn(
+                  'flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all text-muted-foreground hover:text-primary hover:bg-primary/10',
+                  location.pathname === '/' && 'text-primary bg-primary/10',
+                )}
                 to={'/'}
               >
-                <HomeIcon className="h-4 w-4" />
+                <LayoutDashboard className="h-4 w-4" />
                 Home
               </Link>
               <Link
-                className="flex items-center gap-3 rounded-lg bg-gray-100 px-3 py-2 text-gray-900  transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50"
+                className={cn(
+                  'flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all text-muted-foreground hover:text-primary hover:bg-primary/10',
+                  location.pathname === '/dashboard' &&
+                    'bg-primary text-primary-foreground shadow-md shadow-primary/20 hover:text-primary-foreground hover:bg-primary/90',
+                )}
                 to={'/dashboard'}
               >
-                <WorkflowIcon className="h-4 w-4" />
+                <FolderOpen className="h-4 w-4" />
                 Workflows
               </Link>
             </nav>
           </div>
         </div>
       </div>
+
+      {/* Main Content */}
       <div className="flex flex-col">
-        <header className="flex h-14 lg:h-[60px] items-center gap-4 border-b bg-gray-100/40 px-6 dark:bg-gray-800/40">
+        {/* Header */}
+        <header className="flex h-16 items-center gap-4 border-b border-border/50 bg-card/60 backdrop-blur-xl px-6">
           <Link className="lg:hidden" to={'/'}>
-            <WorkflowIcon className="h-6 w-6" />
+            <Zap className="h-6 w-6 text-primary" />
             <span className="sr-only">Home</span>
           </Link>
           <div className="w-full flex-1">
             <form>
               <div className="relative">
-                <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
+                <FaSearch className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
-                  className="w-full bg-white shadow-none appearance-none pl-8 md:w-2/3 lg:w-1/3 dark:bg-gray-950"
+                  className="w-full bg-secondary/50 border-transparent focus:border-primary pl-10 md:w-2/3 lg:w-1/3 rounded-full transition-all"
                   placeholder="Search workflows..."
                   type="search"
                 />
               </div>
             </form>
           </div>
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-primary to-secondary" />
+          </div>
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-          <div className="flex items-center">
-            <h1 className="font-semibold text-lg md:text-2xl">Workflows</h1>
+
+        {/* Dashboard Content */}
+        <main className="flex flex-1 flex-col gap-8 p-6 lg:p-10">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">Workflows</h1>
+              <p className="text-muted-foreground mt-1">
+                Manage and edit your data workflows
+              </p>
+            </div>
+            <NewWorkFlow />
           </div>
 
-          <div className="flex flex-wrap gap-4 md:gap-8 lg:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {workFLowList.length > 0 ? (
               workFLowList.map((workflow) => (
                 <Card
                   key={workflow.id}
-                  className="shadow-md border border-solid border-gray-500"
+                  className="group relative overflow-hidden border-border/50 bg-card/40 hover:bg-card/60 transition-all hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1 block"
                 >
-                  <CardHeader>
-                    <CardTitle>{workflow.name}</CardTitle>
+                  <Link
+                    to={`/workflow/${workflow.id}`}
+                    className="absolute inset-0 z-10 cursor-pointer"
+                  >
+                    <span className="sr-only">
+                      Open workflow {workflow.name}
+                    </span>
+                  </Link>
+                  <div className="absolute top-0 left-0 w-1 h-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <CardHeader className="pb-2">
+                    <CardTitle
+                      className="text-lg font-semibold truncate group-hover:text-primary transition-colors"
+                      title={workflow.name}
+                    >
+                      {workflow.name}
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground">
+                      ID: {workflow.id.slice(0, 8)}...
+                    </p>
                   </CardHeader>
-                  <CardContent className="flex gap-3 justify-between">
-                    <Link
-                      title="edit workflow"
-                      className="bg-indigo-950  hover:bg-indigo-900 text-white px-4 py-2 rounded-md"
-                      to={`/workflow/${workflow.id}`}
-                    >
-                      <FaPen className="text-white" />
-                    </Link>
-                    <button
-                      title="delete workflow"
-                      className="bg-red-600  hover:bg-red-500 text-white px-4 py-2 rounded-md"
-                      onClick={() => {
-                        dispatch(deleteWorkFlow(workflow.id));
-                      }}
-                    >
-                      <FaTrash className="text-white" />
-                    </button>
+                  <CardContent className="pt-4">
+                    <div className="flex items-center justify-end gap-2 relative z-20">
+                      <Link to={`/workflow/${workflow.id}`} tabIndex={-1}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 w-8 p-0 border-border/50 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors cursor-pointer"
+                        >
+                          <FaPen className="h-3 w-3" />
+                          <span className="sr-only">Edit {workflow.name}</span>
+                        </Button>
+                      </Link>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer"
+                        onClick={(e) => {
+                          e.preventDefault(); // Prevent Link navigation
+                          dispatch(deleteWorkFlow(workflow.id));
+                        }}
+                      >
+                        <FaTrash className="h-3 w-3" />
+                        <span className="sr-only">Delete {workflow.name}</span>
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))
             ) : (
-              <div className="flex flex-col items-center justify-center w-full h-full">
-                <h1 className="text-2xl font-semibold">No Workflows Found</h1>
-                <p className="text-gray-500">Create a new workflow</p>
+              <div className="col-span-full flex flex-col items-center justify-center p-12 border-2 border-dashed border-border/50 rounded-lg bg-card/20 text-center">
+                <div className="p-4 rounded-full bg-secondary/50 mb-4">
+                  <FolderOpen className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-xl font-semibold">No workflows created</h3>
+                <p className="text-muted-foreground mt-2 mb-6 max-w-sm">
+                  Get started by creating a new workflow to visualize and
+                  process your data.
+                </p>
+                {/* Reusing NewWorkFlow trigger might be tricky if it's a dialog trigger, sticking to the top one for now or just text */}
               </div>
             )}
-          </div>
-
-          <div className="mt-auto p-4">
-            <NewWorkFlow />
           </div>
         </main>
       </div>
     </div>
   );
 };
-
-function HomeIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-      <polyline points="9 22 9 12 15 12 15 22" />
-    </svg>
-  );
-}
-
-function SearchIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="11" cy="11" r="8" />
-      <path d="m21 21-4.3-4.3" />
-    </svg>
-  );
-}
-
-function WorkflowIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect width="8" height="8" x="3" y="3" rx="2" />
-      <path d="M7 11v4a2 2 0 0 0 2 2h4" />
-      <rect width="8" height="8" x="13" y="13" rx="2" />
-    </svg>
-  );
-}
 
 export default Dashboard;

@@ -15,6 +15,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { ReduxStore } from '@/store';
 import { workflowNodeEnum } from '@/types/Builder.dto';
+import { FileText } from 'lucide-react';
 
 declare type Props = NodeProps & {
   data: {
@@ -109,45 +110,57 @@ const InputNode = memo((props: Props) => {
   );
 
   return (
-    <div className="rounded-lg flex  shadow-md bg-slate-800">
-      <div className="shadow-md bg-slate-800 w-full max-w-sm">
-        <div className="text-slate-300 flex items-center justify-between px-2 py-1 bg-slate-600">
+    <div className="rounded-lg flex shadow-lg bg-card border border-border/50 overflow-hidden min-w-[300px]">
+      <div className="w-full">
+        <div className="text-card-foreground flex items-center justify-between px-3 py-2 bg-muted/40 border-b border-border/50">
           <div className="flex gap-2 items-center">
-            <FaGripVertical className="inline" />
-            <span className="text-sm">File</span>
+            <FaGripVertical className="text-muted-foreground/50" />
+            <span className="text-sm font-medium flex items-center gap-2">
+              <FileText className="h-4 w-4 text-primary" />
+              Input File
+            </span>
           </div>
-          <button onClick={() => removeNode(props.id)}>
+          <button
+            onClick={() => removeNode(props.id)}
+            className="text-muted-foreground hover:text-destructive transition-colors"
+          >
             <FaXmark />
           </button>
         </div>
-        {file ? (
-          <div className="dark:bg-slate-400 me-2 px-3 py-2 dark:text-white rounded-md">
-            <h6 className="text-white">File selected</h6>
-            <span className="text-gray-400">{file.fileName}</span>
-          </div>
-        ) : (
-          <div className="dark:bg-slate-400 me-2 px-3 py-2 dark:text-white rounded-md">
-            <label className="cursor-pointer" htmlFor="file-upload">
-              <div className="flex items-center justify-center text-slate-300 py-2 px-3 rounded-md border border-transparent hover:border-gray-300 dark:hover:border-gray-600 transition-colors">
-                <FaFile className="mr-2 text-slate-300" />
-                Upload File
-              </div>
-            </label>
-            <input
-              className="sr-only"
-              id="file-upload"
-              accept=".csv"
-              onChange={onFileChange}
-              type="file"
-            />
-          </div>
-        )}
+        <div className="p-4">
+          {file ? (
+            <div className="bg-background border border-border/50 px-3 py-3 rounded-md flex flex-col gap-1">
+              <h6 className="text-sm font-medium text-foreground">
+                File selected
+              </h6>
+              <span className="text-xs text-muted-foreground truncate max-w-[250px]">
+                {file.fileName}
+              </span>
+            </div>
+          ) : (
+            <div className="bg-background border border-dashed border-border px-4 py-6 rounded-md hover:bg-accent/50 transition-colors">
+              <label
+                className="cursor-pointer w-full h-full block"
+                htmlFor={`file-upload-${props.id}`}
+              >
+                <div className="flex flex-col items-center justify-center text-muted-foreground gap-2">
+                  <FaFile className="text-2xl text-primary/50" />
+                  <span className="text-sm">Upload CSV File</span>
+                </div>
+              </label>
+              <input
+                className="sr-only"
+                id={`file-upload-${props.id}`}
+                accept=".csv"
+                onChange={onFileChange}
+                type="file"
+              />
+            </div>
+          )}
+        </div>
       </div>
       <Handle
-        className="!w-3 !relative !translate-x-0 !translate-y-0 !inset-0 !border-0 px-2 !rounded-l-none !rounded-r-md"
-        style={{
-          height: 'initial',
-        }}
+        className="!w-3 !h-6 !bg-primary !border-2 !border-background !rounded-full !-right-[6px]"
         type="source"
         onConnect={(params) => updateTargetNodeOperation(params)}
         isValidConnection={(connection) => {

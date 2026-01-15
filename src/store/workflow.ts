@@ -39,6 +39,11 @@ export interface WorkFlowEdge {
   sourceHandle: string;
   target: string;
   targetHandle: null | string;
+  type?: string;
+  data?: {
+    workflowId: string;
+    [key: string]: any;
+  };
 }
 
 export interface ArrayDataType {
@@ -73,8 +78,85 @@ export interface WorkFlowState {
   workflows: WorkFlowDto[];
 }
 
+const demoWorkflow: WorkFlowDto = {
+  id: 'demo-workflow-01',
+  name: 'Demo Sales Analysis',
+  nodeOperation: [],
+  workFlowNodes: [
+    {
+      id: 'node-1',
+      type: 'selectorNode',
+      position: { x: 100, y: 100 },
+      data: { workflowId: 'demo-workflow-01' },
+    },
+    {
+      id: 'node-2',
+      type: 'filterNode',
+      position: { x: 100, y: 300 },
+      data: { workflowId: 'demo-workflow-01' },
+    },
+    {
+      id: 'node-3',
+      type: 'sortNode',
+      position: { x: 400, y: 300 },
+      data: { workflowId: 'demo-workflow-01' },
+    },
+    {
+      id: 'node-4',
+      type: 'groupNode',
+      position: { x: 400, y: 500 },
+      data: { workflowId: 'demo-workflow-01' },
+    },
+    {
+      id: 'node-5',
+      type: 'sliceNode',
+      position: { x: 700, y: 300 },
+      data: { workflowId: 'demo-workflow-01' },
+    },
+  ],
+  workFlowEdges: [
+    {
+      id: 'edge-1-2',
+      source: 'node-1',
+      sourceHandle: 'source-1',
+      target: 'node-2',
+      targetHandle: 'target-1',
+      type: 'buttonEdge',
+      data: { workflowId: 'demo-workflow-01' },
+    },
+    {
+      id: 'edge-1-3',
+      source: 'node-1',
+      sourceHandle: 'source-1',
+      target: 'node-3',
+      targetHandle: 'target-1',
+      type: 'buttonEdge',
+      data: { workflowId: 'demo-workflow-01' },
+    },
+    {
+      id: 'edge-3-4',
+      source: 'node-3',
+      sourceHandle: 'source-1',
+      target: 'node-4',
+      targetHandle: 'target-1',
+      type: 'buttonEdge',
+      data: { workflowId: 'demo-workflow-01' },
+    },
+    {
+      id: 'edge-1-5',
+      source: 'node-1',
+      sourceHandle: 'source-1',
+      target: 'node-5',
+      targetHandle: 'target-1',
+      type: 'buttonEdge',
+      data: { workflowId: 'demo-workflow-01' },
+    },
+  ],
+  data: [],
+};
+
 const initialState: WorkFlowState = {
-  workflows: [],
+  workflows: [demoWorkflow],
   loading: true,
 };
 
@@ -279,6 +361,20 @@ const WorkFlowSlice = createSlice({
       state.loading = false;
     },
 
+    removeWorkFlowEdge: (
+      state,
+      action: PayloadAction<{ workflowId: string; edgeId: string }>,
+    ) => {
+      const workflow = state.workflows.find(
+        (flow) => flow.id === action.payload.workflowId,
+      );
+      if (workflow) {
+        workflow.workFlowEdges = workflow.workFlowEdges.filter(
+          (edge) => edge.id !== action.payload.edgeId,
+        );
+      }
+    },
+
     updateLoadingState: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
     },
@@ -355,6 +451,7 @@ export const {
   updateWorkFlowNodePosition,
   setCurrentData,
   deleteWorkFlow,
+  removeWorkFlowEdge,
 } = WorkFlowSlice.actions;
 
 export default WorkFlowSlice.reducer;

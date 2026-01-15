@@ -1,10 +1,11 @@
 import { workflowNodeTypes } from '@/types/Builder.dto';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '../ui/button';
 import { FaCheck, FaSave } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import { getWorkFlowList } from '@/store/workflow';
 import { saveWorkflows } from '@/utils/db';
+import { FileText, ArrowUpDown, Filter, Scissors, Layers } from 'lucide-react';
 
 const SideBar = () => {
   const onDragStart = (
@@ -32,57 +33,58 @@ const SideBar = () => {
     }
   };
 
+  const DraggableNode = ({
+    type,
+    label,
+    icon: Icon,
+  }: {
+    type: workflowNodeTypes;
+    label: string;
+    icon: any;
+  }) => (
+    <div
+      className="cursor-move group flex items-center gap-3 border border-border/50 bg-card hover:bg-accent/50 hover:border-primary/50 rounded-lg px-3 py-3 text-sm font-medium transition-all shadow-sm hover:shadow-md"
+      onDragStart={(event) => onDragStart(event, type)}
+      draggable
+    >
+      <div className="p-1.5 rounded-md bg-secondary text-secondary-foreground group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+        <Icon className="h-4 w-4" />
+      </div>
+      <span className="truncate">{label}</span>
+    </div>
+  );
+
   return (
-    <div className="h-full w-full p-2">
-      <div className="flex flex-col gap-4 my-3 ">
+    <div className="h-full w-full flex flex-col gap-4">
+      <div className="pb-4 border-b border-border/50">
+        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4 px-2">
+          Actions
+        </h2>
         <Button
-          className="flex gap-2 items-center"
+          className="w-full flex gap-2 items-center justify-center transition-all"
+          size="sm"
           onClick={() => {
             saveWorkflow();
           }}
         >
           {workflowSaved ? (
-            <FaCheck className="text-green-500" />
+            <FaCheck className="h-3 w-3" />
           ) : (
-            <FaSave className="text-white" />
+            <FaSave className="h-3 w-3" />
           )}{' '}
           <span>{workflowSaved ? 'Saved' : 'Save Workflow'}</span>
         </Button>
-        <div
-          className="cursor-move border border-solid bg-indigo-950 border-gray-300 rounded-md px-4 text-white font-mono shadow-md py-2"
-          onDragStart={(event) => onDragStart(event, 'selectorNode')}
-          draggable
-        >
-          Input File
-        </div>
-        <div
-          className="cursor-move border border-solid bg-indigo-950 border-gray-300 rounded-md px-4 text-white font-mono shadow-md py-2"
-          onDragStart={(event) => onDragStart(event, 'sortNode')}
-          draggable
-        >
-          Sort Data
-        </div>
-        <div
-          className="cursor-move border border-solid bg-indigo-950 border-gray-300 rounded-md px-4 text-white font-mono shadow-md py-2"
-          onDragStart={(event) => onDragStart(event, 'filterNode')}
-          draggable
-        >
-          Filter Data
-        </div>
-        <div
-          className="cursor-move border border-solid bg-indigo-950 border-gray-300 rounded-md px-4 text-white font-mono shadow-md py-2"
-          onDragStart={(event) => onDragStart(event, 'sliceNode')}
-          draggable
-        >
-          Slice Data
-        </div>
-        <div
-          className="cursor-move border border-solid bg-indigo-950 border-gray-300 rounded-md px-4 text-white font-mono shadow-md py-2"
-          onDragStart={(event) => onDragStart(event, 'groupNode')}
-          draggable
-        >
-          Group Data
-        </div>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 px-2">
+          Nodes
+        </h2>
+        <DraggableNode type="selectorNode" label="Input File" icon={FileText} />
+        <DraggableNode type="sortNode" label="Sort Data" icon={ArrowUpDown} />
+        <DraggableNode type="filterNode" label="Filter Data" icon={Filter} />
+        <DraggableNode type="sliceNode" label="Slice Data" icon={Scissors} />
+        <DraggableNode type="groupNode" label="Group Data" icon={Layers} />
       </div>
     </div>
   );

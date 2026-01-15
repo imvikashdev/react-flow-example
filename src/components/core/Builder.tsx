@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -27,6 +27,7 @@ import SortNode from './Nodes/SortNode';
 import FilterNode from './Nodes/FilterNode';
 import SliceNode from './Nodes/SliceNode';
 import GroupNode from './Nodes/GroupNode';
+import ButtonEdge from './Edges/ButtonEdge';
 
 const nodeTypes = {
   selectorNode: InputNode,
@@ -34,6 +35,10 @@ const nodeTypes = {
   filterNode: FilterNode,
   sliceNode: SliceNode,
   groupNode: GroupNode,
+};
+
+const edgeTypes = {
+  buttonEdge: ButtonEdge,
 };
 
 declare type Props = {
@@ -64,6 +69,8 @@ const Builder = ({ workflow }: Props) => {
               sourceHandle: params.sourceHandle,
               target: params.target,
               targetHandle: params.targetHandle,
+              type: 'buttonEdge',
+              data: { workflowId: workflow.id },
             },
           }),
         );
@@ -123,11 +130,14 @@ const Builder = ({ workflow }: Props) => {
   }, [workflow.workFlowEdges, setEdges]);
 
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full text-foreground bg-slate-950">
+      {' '}
+      {/* Updated BG */}
       <ReactFlow
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         onNodesChange={onNodesChange}
         onNodeDragStop={(_, node) => {
           dispatch(
@@ -139,22 +149,30 @@ const Builder = ({ workflow }: Props) => {
           );
         }}
         onEdgesChange={onEdgesChange}
-        onConnect={(e) => onConnect(e)}
+        onConnect={onConnect}
         onInit={(e) => setReactFlowInstance(e)}
         onDrop={(e) => onDrop(e)}
         onDragOver={(e) => onDragOver(e)}
-        className=" bg-indigo-950"
+        // Removed hardcoded className to let parent control or default
       >
-        <Controls />
+        <Controls className="border border-border/50 bg-card rounded-md shadow-md" />
         <MiniMap
-          className="bg-gray-700"
           style={{
-            background: 'rgb(55 65 81)',
-            border: '1px solid #777',
+            background: 'hsl(var(--card))',
+            border: '1px solid hsl(var(--border))',
             borderRadius: '8px',
+            bottom: '60px',
+            right: '16px',
           }}
+          maskColor="rgba(0,0,0,0.6)"
+          nodeColor="hsl(var(--primary))"
         />
-        <Background variant={BackgroundVariant.Cross} gap={12} size={1} />
+        <Background
+          variant={BackgroundVariant.Dots}
+          gap={20}
+          size={1}
+          color="hsl(var(--muted-foreground)/0.2)"
+        />
       </ReactFlow>
     </div>
   );

@@ -15,6 +15,7 @@ import { FaGripVertical, FaPlay } from 'react-icons/fa';
 import { FaTriangleExclamation, FaXmark } from 'react-icons/fa6';
 import { useDispatch, useSelector } from 'react-redux';
 import { Connection, Handle, NodeProps, Position } from 'reactflow';
+import { Scissors } from 'lucide-react';
 
 declare type Props = NodeProps & {
   isConnectable: boolean;
@@ -113,52 +114,51 @@ const SliceNode = memo((props: Props) => {
     [nodeOperations, dispatch, props.data.workflowId],
   );
   return (
-    <div className="rounded-lg flex  shadow-md bg-slate-800">
+    <div className="rounded-lg flex shadow-lg bg-card border border-border/50 overflow-hidden min-w-[300px]">
       <Handle
-        className="!rounded-l-md !rounded-r-none"
+        className="!w-3 !h-6 !bg-primary !border-2 !border-background !rounded-full !-left-[6px]"
         type="target"
         position={Position.Left}
-        style={{
-          width: '16px',
-          height: '28px',
-          border: '0',
-          left: '-15px',
-          top: '20%',
-        }}
+        style={{ top: '50%', transform: 'translateY(-50%)' }}
         isConnectableStart={false}
         isConnectableEnd={true}
         isConnectable={true}
       />
-      <div className="shadow-md bg-slate-800 w-full max-w-sm">
-        <div className="text-slate-300 flex items-center justify-between px-2 py-1 bg-slate-600">
+      <div className="w-full">
+        <div className="text-card-foreground flex items-center justify-between px-3 py-2 bg-muted/40 border-b border-border/50">
           <div className="flex gap-2 items-center">
-            <FaGripVertical className="inline" />
-            <span className="text-sm">Slice Data</span>
+            <FaGripVertical className="text-muted-foreground/50" />
+            <span className="text-sm font-medium flex items-center gap-2">
+              <Scissors className="h-4 w-4 text-primary" />
+              Slice Data
+            </span>
           </div>
           <div className="flex gap-2 items-center">
-            <button onClick={() => removeNode(props.id)}>
+            <button
+              onClick={() => removeNode(props.id)}
+              className="text-muted-foreground hover:text-destructive transition-colors"
+            >
               <FaXmark />
             </button>
             <button
               disabled={!currentNodeOperation?.input?.length}
-              className="disabled:opacity-50 disabled:cursor-not-allowed"
+              className="disabled:opacity-50 disabled:cursor-not-allowed bg-primary text-primary-foreground p-1.5 rounded-md hover:bg-primary/90 transition-colors"
               onClick={() => runOperation()}
             >
-              <FaPlay />
+              <FaPlay className="text-[10px]" />
             </button>
           </div>
         </div>
-        <div className="dark:bg-slate-400 me-2 px-3 py-4 dark:text-white rounded-md">
+        <div className="p-4">
           {currentNodeOperation?.input?.length &&
           currentNodeOperation?.input?.length > 0 ? (
             <>
-              <div className="mb-4 grid w-full max-w-sm items-center gap-1.5">
-                <Label htmlFor="startIndex" className="text-white">
+              <div className="mb-4 grid w-full items-center gap-1.5">
+                <Label htmlFor="startIndex" className="">
                   Start Index
                 </Label>
                 <Input
                   type="text"
-                  className="text-white bg-gray-700 border-0"
                   id="startIndex"
                   value={startIndex}
                   title="start index"
@@ -170,15 +170,14 @@ const SliceNode = memo((props: Props) => {
                   placeholder="0"
                 />
               </div>
-              <div className="mb-4 grid w-full max-w-sm items-center gap-1.5">
-                <Label htmlFor="endIndex" className="text-white">
+              <div className="mb-4 grid w-full items-center gap-1.5">
+                <Label htmlFor="endIndex" className="">
                   End Index
                 </Label>
                 <Input
                   type="text"
                   id="endIndex"
-                  className="text-white bg-gray-700 border-0"
-                  placeholder="Email"
+                  placeholder="10"
                   title="end index"
                   value={endIndex}
                   onChange={(e) => {
@@ -190,24 +189,24 @@ const SliceNode = memo((props: Props) => {
               </div>
             </>
           ) : (
-            <div className="flex gap-2 items-center">
-              <FaTriangleExclamation className="text-red-400 inline" />
-              <span className="text-white"> Please Connect Data Source</span>
+            <div className="flex gap-2 items-center justify-center p-4 bg-muted/20 rounded-md border border-dashed border-border/50">
+              <FaTriangleExclamation className="text-amber-500" />
+              <span className="text-sm text-muted-foreground">
+                Connect Data Source
+              </span>
             </div>
           )}
         </div>
       </div>
       <Handle
-        className="!w-3 !relative !translate-x-0 !translate-y-0 !inset-0 !border-0 px-2 !rounded-l-none !rounded-r-md"
-        style={{
-          height: 'initial',
-        }}
+        className="!w-3 !h-6 !bg-primary !border-2 !border-background !rounded-full !-right-[6px]"
         type="source"
         position={Position.Right}
         isConnectableEnd={false}
         isValidConnection={(connection) => {
           return connection.source !== connection.target;
         }}
+        style={{ top: '50%', transform: 'translateY(-50%)' }}
         isConnectableStart={true}
         onConnect={(params) => updateTargetNodeOperation(params)}
         id="a"
